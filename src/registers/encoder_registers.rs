@@ -222,6 +222,27 @@ pub struct EncConst<const N: u8> {
     pub enc_const_frac: u16,
 }
 
+impl<const N: u8> EncConst<N> {
+    /// Calculate enc_const from integer and frational parts
+    ///
+    /// # Panics
+    ///
+    /// Panics if enc_sel_decimal is true and self.enc_const_frac  >= 10000.
+    pub fn enc_const(&self, enc_sel_decimal: bool) -> f64 {
+        if enc_sel_decimal {
+            if self.enc_const_frac >= 10000 {
+                panic!(
+                    "enc_const_frac is over 10000 ({}) but enc_sel_decimal is true",
+                    self.enc_const_frac
+                )
+            }
+            self.enc_const_int as f64 + self.enc_const_frac as f64 / 10000.
+        } else {
+            self.enc_const_int as f64 + self.enc_const_frac as f64 / 65536.
+        }
+    }
+}
+
 impl<const N: u8> Default for EncConst<N> {
     fn default() -> Self {
         Self::from(0u32)
@@ -279,6 +300,48 @@ mod enc_const {
                 ..Default::default()
             },
         )
+    }
+    #[test]
+    fn enc_const() {
+        assert_eq!(
+            EncConst::<1> {
+                enc_const_int: -66,
+                enc_const_frac: 0,
+                ..Default::default()
+            }
+            .enc_const(false),
+            -66.0,
+        );
+        assert_eq!(
+            EncConst::<1> {
+                enc_const_int: 32767,
+                enc_const_frac: 65535,
+                ..Default::default()
+            }
+            .enc_const(false)
+            .to_bits(),
+            32767.99998474121f64.to_bits(),
+        );
+        assert_eq!(
+            EncConst::<1> {
+                enc_const_int: 32767,
+                enc_const_frac: 9999,
+                ..Default::default()
+            }
+            .enc_const(false)
+            .to_bits(),
+            32767.152572631835f64.to_bits(),
+        );
+        assert_eq!(
+            EncConst::<1> {
+                enc_const_int: 32767,
+                enc_const_frac: 9999,
+                ..Default::default()
+            }
+            .enc_const(true)
+            .to_bits(),
+            32767.9999f64.to_bits(),
+        );
     }
 }
 

@@ -30,7 +30,7 @@
 #![deny(missing_docs)]
 
 #[doc(hidden)]
-pub mod bits;
+mod bits;
 pub mod registers;
 pub mod spi;
 pub mod status;
