@@ -838,8 +838,6 @@ mod t_zero_wait {
 #[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash, Debug)]
 #[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 pub struct XTarget<const M: u8> {
-    ///Target position for ramp mode (signed)
-    ///
     /// Target position for ramp mode (signed). Write a new target position to this register in order to activate the ramp generator positioning in RAMPMODE=0.
     /// Initialize all velocity, acceleration and deceleration parameters before.
     ///
