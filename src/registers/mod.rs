@@ -1,6 +1,6 @@
 //! TMC5072 registers
 
-// TODO: use bitfields or packed_struct for registers
+// TODO: use macro, bitfields or packed_struct for registers
 
 pub mod encoder_registers;
 pub mod general_configuration_register;
@@ -14,9 +14,12 @@ pub mod voltage_pwm_mode_stealth_chop;
 pub(crate) const READ_FLAG: u8 = 0x00;
 /// Address flag for write operation
 pub(crate) const WRITE_FLAG: u8 = 0x80;
+/// IC Version expected
+pub const IC_VERSION: u8 = 0x10;
 
 /// Register trait
-/// imposes u32 conversion and addressing
+///
+/// Imposes u32 conversion and addressing capabilities
 pub trait Register
 where
     u32: From<Self>,

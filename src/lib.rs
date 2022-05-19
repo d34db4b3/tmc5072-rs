@@ -3,7 +3,7 @@
 //! Dual controller/driver for up to two 2-phase bipolar stepper motors.
 //! No-noise stepper operation. Integrated motion controller and encoder counter. SPI, UART (single wire) and Step/Dir
 //!
-//! Description:
+//! # Description:
 //!
 //! The TMC5072 is a dual high performance stepper motor controller and driver IC with serial communication interfaces.
 //! It combines flexible ramp generators for automatic target positioning with industries' most advanced stepper motor drivers.
@@ -12,19 +12,85 @@
 //! The complete solution reduces learning curve to a minimum while giving best performance in class.
 //!
 //!
-//! Key Concepts:
+//! # Key Concepts:
 //!
 //! The TMC5072 implements several advanced features which are exclusive to TRINAMIC products.
 //! These features contribute toward greater precision, greater energy efficiency, higher reliability, smoother motion, and cooler operation in many stepper motor applications.
+//!
 //! stealthChop™: No-noise, high-precision chopper algorithm for inaudible motion and inaudible standstill of the motor.
+//!
 //! dcStep™: Load dependent speed control. The motor moves as fast as possible and never loses a step.
+//!
 //! stallGuard2™: High-precision load measurement using the back EMF on the motor coils.
+//!
 //! coolStep™: Load-adaptive current control which reduces energy consumption by as much as 75%.
+//!
 //! spreadCycle™: High-precision chopper algorithm available as an alternative to the traditional constant off-time algorithm.
+//!
 //! sixPoint™: Fast and precise positioning using a hardware ramp generator with a set of four acceleration / deceleration settings. Quickest response due to dedicated hardware.
 //!
 //! In addition to these performance enhancements, TRINAMIC motor drivers offer safeguards to detect and protect against shorted outputs,
 //! output open-circuit, overtemperature, and undervoltage conditions for enhancing safety and recovery from equipment malfunctions.
+//!
+//! # Example
+//!
+//! ```rust
+//! # use tmc5072::{Tmc5072, spi::{SpiError, SpiOk}, InitError, registers::ramp_generator_register::XActual};
+//! #
+//! # struct SpiMock;
+//! # impl embedded_hal::blocking::spi::Transfer<u8> for SpiMock {
+//! #     type Error = ();
+//! #
+//! #     fn transfer<'w>(&mut self, words: &'w mut [u8]) -> Result<&'w [u8], Self::Error> {
+//! #         words[0] = 0x00;
+//! #         words[1] = 0x10;
+//! #         words[2] = 0x00;
+//! #         words[3] = 0x00;
+//! #         words[4] = 0x00;
+//! #         Ok(words)
+//! #     }
+//! # }
+//! # struct CsMock;
+//! # impl embedded_hal::digital::v2::OutputPin for CsMock {
+//! #     type Error = ();
+//! #
+//! #     fn set_low(&mut self) -> Result<(), Self::Error> {
+//! #         Ok(())
+//! #     }
+//! #
+//! #     fn set_high(&mut self) -> Result<(), Self::Error> {
+//! #         Ok(())
+//! #     }
+//! # }
+//! #
+//! # #[derive(Debug)]
+//! # struct Error;
+//! # impl<SPI, CS> From<InitError<SPI, CS>> for Error {
+//! #     fn from(e: InitError<SPI, CS>) -> Self {
+//! #         Error
+//! #     }
+//! # }
+//! # impl<SPI, CS> From<SpiError<SPI, CS>> for Error {
+//! #     fn from(e: SpiError<SPI, CS>) -> Self {
+//! #         Error
+//! #     }
+//! # }
+//! #
+//! # fn main() -> Result<(), Error> {
+//! #    let spi = SpiMock;
+//! #    let cs = CsMock;
+//! let mut tmc5072 = Tmc5072::new(spi, cs)?;
+//! let spi_ok: SpiOk<XActual<0>> = tmc5072.read_register::<XActual<0>>()?;
+//! let x_actual: i32 = spi_ok.data.x_actual;
+//! #    Ok(())
+//! # }
+//! ```
+//!
+//! # Warnings
+//!
+//! Not production ready yet, API could change in the future
+//!
+//! This crate only implements raw register access
 
 #![no_std]
 #![deny(missing_docs)]
@@ -37,8 +103,26 @@ pub mod status;
 
 use embedded_hal as hal;
 use hal::{blocking::spi::Transfer, digital::v2::OutputPin};
-use registers::{Register, READ_FLAG, WRITE_FLAG};
+use registers::{Register, IC_VERSION, READ_FLAG, WRITE_FLAG};
+#[cfg(feature = "serde")]
+use serde::{Deserialize, Serialize};
 use spi::{SpiError, SpiOk, SpiResult};
+
+/// TMC5072 initialisation error
+#[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash, Debug)]
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
+pub enum InitError<SPI, CS> {
+    /// SPI bus error
+    SpiError(SpiError<SPI, CS>),
+    /// IC Version error (should be 0x10)
+    VersionError(u8),
+}
+
+impl<SPI, CS> From<SpiError<SPI, CS>> for InitError<SPI, CS> {
+    fn from(e: SpiError<SPI, CS>) -> Self {
+        InitError::SpiError(e)
+    }
+}
 
 /// TMC5072 driver
 pub struct Tmc5072<SPI, CS> {
@@ -49,12 +133,21 @@ pub struct Tmc5072<SPI, CS> {
 
 impl<SPI: Transfer<u8>, CS: OutputPin> Tmc5072<SPI, CS> {
     /// Creates a new Tmc5072 driver from an SPI interface and a Chip Select pin
-    pub fn new(spi: SPI, cs: CS) -> Self {
-        Tmc5072 {
+    pub fn new(spi: SPI, cs: CS) -> Result<Self, InitError<SPI::Error, CS::Error>> {
+        let mut tmc5072 = Tmc5072 {
             spi,
             cs,
             buffer: [0; 5],
-        }
+        };
+        // check IC version
+        let version = tmc5072
+            .read_register::<registers::general_configuration_register::Input>()?
+            .data
+            .version;
+        if version != IC_VERSION {
+            return Err(InitError::VersionError(version));
+        };
+        Ok(tmc5072)
     }
     /// Read a typed register from the Tmc5072
     pub fn read_register<'a, R>(&mut self) -> SpiResult<R, SPI::Error, CS::Error>

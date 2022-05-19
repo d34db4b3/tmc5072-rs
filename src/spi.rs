@@ -1,6 +1,8 @@
 //! SPI Error handling
 
 use crate::status::SpiStatus;
+#[cfg(feature = "serde")]
+use serde::{Deserialize, Serialize};
 
 /// Wrapper for SPI communication Result
 pub type SpiResult<T, SPI, CS> = Result<SpiOk<T>, SpiError<SPI, CS>>;
@@ -50,7 +52,8 @@ impl SpiOk<()> {
 }
 
 /// Errors that can occur while using SPI
-#[derive(Debug)]
+#[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash, Debug)]
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 pub enum SpiError<SPI, CS> {
     /// SPI communication error
     SpiError(SPI),
