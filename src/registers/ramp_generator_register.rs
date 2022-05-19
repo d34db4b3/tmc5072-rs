@@ -9,9 +9,12 @@
 
 use super::Register;
 use crate::bits::{convert_from_signed_n, convert_to_signed_n, read_from_bit, write_from_bit};
+#[cfg(feature = "serde")]
+use serde::{Deserialize, Serialize};
 
-#[derive(Debug, Clone, Copy, PartialEq)]
 /// RAMPMODE
+#[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash, Debug)]
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 pub struct RampMode<const M: u8> {
     /// RAMPMODE:
     /// - 0: Positioning mode (using all A, D and V parameters)
@@ -79,8 +82,9 @@ mod ramp_mode {
     }
 }
 
-#[derive(Debug, Clone, Copy, PartialEq)]
 /// XACTUAL: Actual motor position (signed)
+#[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash, Debug)]
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 pub struct XActual<const M: u8> {
     /// Actual motor position (signed)
     ///
@@ -147,8 +151,9 @@ mod x_actual {
     }
 }
 
-#[derive(Debug, Clone, Copy, PartialEq)]
 /// VACTUAL: Actual motor velocity from ramp generator (signed)
+#[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash, Debug)]
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 pub struct VActual<const M: u8> {
     /// Actual motor velocity from ramp generator (signed)
     ///
@@ -219,8 +224,9 @@ mod v_actual {
     }
 }
 
-#[derive(Debug, Clone, Copy, PartialEq)]
 /// VSTART: Motor start velocity (unsigned)
+#[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash, Debug)]
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 pub struct VStart<const M: u8> {
     /// Motor start velocity (unsigned)
     ///
@@ -286,8 +292,9 @@ mod v_start {
     }
 }
 
-#[derive(Debug, Clone, Copy, PartialEq)]
 /// A1: First acceleration between VSTART and V1 (unsigned)
+#[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash, Debug)]
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 pub struct A1<const M: u8> {
     /// First acceleration between VSTART and V1 (unsigned)
     pub a1: u16,
@@ -351,8 +358,9 @@ mod a1 {
     }
 }
 
-#[derive(Debug, Clone, Copy, PartialEq)]
 /// V1: First acceleration / deceleration phase threshold velocity (unsigned)
+#[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash, Debug)]
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 pub struct V1<const M: u8> {
     /// First acceleration / deceleration phase threshold velocity (unsigned)
     ///
@@ -418,8 +426,9 @@ mod v1 {
     }
 }
 
-#[derive(Debug, Clone, Copy, PartialEq)]
 /// AMAX: Second acceleration between V1 and VMAX (unsigned)
+#[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash, Debug)]
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 pub struct AMax<const M: u8> {
     /// Second acceleration between V1 and VMAX (unsigned)
     ///
@@ -485,8 +494,9 @@ mod a_max {
     }
 }
 
-#[derive(Debug, Clone, Copy, PartialEq)]
 /// VMAX: Motion ramp target velocity (unsigned)
+#[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash, Debug)]
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 pub struct VMax<const M: u8> {
     /// Motion ramp target velocity (unsigned)
     ///
@@ -552,8 +562,9 @@ mod v_max {
     }
 }
 
-#[derive(Debug, Clone, Copy, PartialEq)]
 /// DMAX: Deceleration between VMAX and V1 (unsigned)
+#[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash, Debug)]
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 pub struct DMax<const M: u8> {
     /// Deceleration between VMAX and V1 (unsigned)
     pub d_max: u16,
@@ -616,8 +627,9 @@ mod d_max {
         )
     }
 }
-#[derive(Debug, Clone, Copy, PartialEq)]
 /// D1: Deceleration between V1 and VSTOP (unsigned)
+#[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash, Debug)]
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 pub struct D1<const M: u8> {
     /// Deceleration between V1 and VSTOP (unsigned)
     ///
@@ -683,8 +695,9 @@ mod d1 {
     }
 }
 
-#[derive(Debug, Clone, Copy, PartialEq)]
 /// VSTOP: Motor stop velocity (unsigned)
+#[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash, Debug)]
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 pub struct VStop<const M: u8> {
     ///  Motor stop velocity (unsigned)
     ///
@@ -752,8 +765,9 @@ mod v_stop {
     }
 }
 
-#[derive(Debug, Clone, Copy, PartialEq)]
 /// TZEROWAIT: Waiting time after ramping down to zero velocity
+#[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash, Debug)]
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 pub struct TZeroWait<const M: u8> {
     /// Waiting time after ramping down to zero velocity before next movement or direction inversion can start and before motor power down starts.
     /// Time range is about 0 to 2 seconds.
@@ -820,8 +834,9 @@ mod t_zero_wait {
     }
 }
 
-#[derive(Debug, Clone, Copy, PartialEq)]
 /// XTARGET: Target position for ramp mode (signed)
+#[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash, Debug)]
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 pub struct XTarget<const M: u8> {
     ///Target position for ramp mode (signed)
     ///

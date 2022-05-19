@@ -8,9 +8,12 @@
 
 use super::Register;
 use crate::bits::{read_from_bit, write_from_bit};
+#[cfg(feature = "serde")]
+use serde::{Deserialize, Serialize};
 
-#[derive(Debug, Clone, Copy, PartialEq)]
 /// MSLUT\[0\]: Microstep table entries 0..31
+#[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash, Debug)]
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 pub struct MsLut0 {
     /// Microstep table entries 0..31
     pub ms_lut0: u32,
@@ -68,8 +71,10 @@ mod ms_lut0 {
         )
     }
 }
-#[derive(Debug, Clone, Copy, PartialEq)]
+
 /// MSLUT\[1\]: Microstep table entries 32..63
+#[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash, Debug)]
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 pub struct MsLut1 {
     /// Microstep table entries 32..63
     pub ms_lut1: u32,
@@ -127,8 +132,9 @@ mod ms_lut1 {
         )
     }
 }
-#[derive(Debug, Clone, Copy, PartialEq)]
 /// MSLUT\[2\]: Microstep table entries 64..95
+#[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash, Debug)]
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 pub struct MsLut2 {
     /// Microstep table entries 64..95
     pub ms_lut2: u32,
@@ -186,8 +192,9 @@ mod ms_lut2 {
         )
     }
 }
-#[derive(Debug, Clone, Copy, PartialEq)]
 /// MSLUT\[3\]: Microstep table entries 96..127
+#[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash, Debug)]
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 pub struct MsLut3 {
     /// Microstep table entries 96..127
     pub ms_lut3: u32,
@@ -245,8 +252,9 @@ mod ms_lut3 {
         )
     }
 }
-#[derive(Debug, Clone, Copy, PartialEq)]
 /// MSLUT\[4\]: Microstep table entries 128..159
+#[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash, Debug)]
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 pub struct MsLut4 {
     /// Microstep table entries 128..159
     pub ms_lut4: u32,
@@ -304,8 +312,10 @@ mod ms_lut4 {
         )
     }
 }
-#[derive(Debug, Clone, Copy, PartialEq)]
+
 /// MSLUT\[5\]: Microstep table entries 160..191
+#[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash, Debug)]
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 pub struct MsLut5 {
     /// Microstep table entries 160..191
     pub ms_lut5: u32,
@@ -363,8 +373,10 @@ mod ms_lut5 {
         )
     }
 }
-#[derive(Debug, Clone, Copy, PartialEq)]
+
 /// MSLUT\[6\]: Microstep table entries 192..223
+#[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash, Debug)]
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 pub struct MsLut6 {
     /// Microstep table entries 192..223
     pub ms_lut6: u32,
@@ -423,8 +435,9 @@ mod ms_lut6 {
     }
 }
 
-#[derive(Debug, Clone, Copy, PartialEq)]
 /// MSLUT\[7\]: Microstep table entries 224..255
+#[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash, Debug)]
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 pub struct MsLut7 {
     /// Microstep table entries 224..255
     pub ms_lut7: u32,
@@ -483,7 +496,6 @@ mod ms_lut7 {
     }
 }
 
-#[derive(Debug, Clone, Copy, PartialEq)]
 /// MSLUTSEL: Look up Table Segmentation
 ///
 /// Width control bit coding W0…W3:
@@ -499,6 +511,8 @@ mod ms_lut7 {
 /// - Segment 2 goes from X2 to X3-1.
 /// - Segment 3 goes from X3 to 255.
 /// For defined response the values shall satisfy: 0<X1<X2<X3
+#[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash, Debug)]
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 pub struct MsLutSel {
     /// W0: LUT width select from ofs00 to ofs(X1-1)
     pub w0: u8,
@@ -581,10 +595,11 @@ mod ms_lut_sel {
     }
 }
 
-#[derive(Debug, Clone, Copy, PartialEq)]
 /// MSLUTSTART
 ///
 /// Start values are transferred to the microstep registers CUR_A and CUR_B, whenever the reference position MSCNT=0 is passed.
+#[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash, Debug)]
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 pub struct MsLutStart {
     /// START_SIN: gives the absolute current at microstep table entry 0.
     pub start_sin: u8,

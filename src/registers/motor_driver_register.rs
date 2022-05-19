@@ -12,9 +12,12 @@ use crate::bits::{
     convert_from_signed_n, convert_to_signed_n, read_bool_from_bit, read_from_bit,
     write_bool_to_bit, write_from_bit,
 };
+#[cfg(feature = "serde")]
+use serde::{Deserialize, Serialize};
 
-#[derive(Debug, Clone, Copy, PartialEq)]
 /// MSCNT: Microstep counter.
+#[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash, Debug)]
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 pub struct MsCnt<const M: u8> {
     /// Microstep counter
     ///
@@ -83,8 +86,9 @@ mod ms_cnt {
     }
 }
 
-#[derive(Debug, Clone, Copy, PartialEq)]
 /// MSCURACT
+#[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash, Debug)]
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 pub struct MsCurAct<const M: u8> {
     /// CUR_A (signed): Actual microstep current for motor phase A as read from MSLUT (not scaled by current)
     pub cur_a: i16,
@@ -165,8 +169,9 @@ mod ms_cur_act {
     }
 }
 
-#[derive(Debug, Clone, Copy, PartialEq)]
 /// CHOPCONF: Chopper and driver configuration
+#[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash, Debug)]
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 pub struct ChopConf<const M: u8> {
     /// TOFF off time and driver enable
     ///
@@ -371,8 +376,9 @@ mod chop_conf {
     }
 }
 
-#[derive(Debug, Clone, Copy, PartialEq)]
 /// coolStep smart current control register and stallGuard2 configuration
+#[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash, Debug)]
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 pub struct CoolConf<const M: u8> {
     /// semin: minimum stallGuard2 value for smart current control and smart current enable
     ///
@@ -501,8 +507,9 @@ mod cool_conf {
     }
 }
 
-#[derive(Debug, Clone, Copy, PartialEq)]
 /// DCCTRL: dcStep (DC) automatic commutation configuration
+#[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash, Debug)]
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 pub struct DcCtrl<const M: u8> {
     /// DC_TIME: Upper PWM on time limit for commutation (DC_TIME * 1/fCLK).
     ///
@@ -578,8 +585,9 @@ mod dc_ctrl {
     }
 }
 
-#[derive(Debug, Clone, Copy, PartialEq)]
 /// stallGuard2 value and driver error flags
+#[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash, Debug)]
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 pub struct DrvStatus<const M: u8> {
     /// SG_ RESULT: stallGuard2 result respectively PWM on time for coil A in stand still for motor temperature detection
     ///

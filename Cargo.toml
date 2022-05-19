@@ -13,3 +13,4 @@ categories = ["embedded", "no-std", "science::robotics"]
 
 [dependencies]
 embedded-hal = "~0.2"
+serde = { version = "1.0", optional = true, features = ["derive"] }

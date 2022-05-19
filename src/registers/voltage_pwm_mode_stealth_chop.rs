@@ -2,9 +2,12 @@
 
 use super::Register;
 use crate::bits::{read_bool_from_bit, read_from_bit, write_bool_to_bit, write_from_bit};
+#[cfg(feature = "serde")]
+use serde::{Deserialize, Serialize};
 
-#[derive(Debug, Clone, Copy, PartialEq)]
 /// PWMCONF: Voltage PWM mode chopper configuration
+#[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash, Debug)]
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 pub struct PwmConf<const M: u8> {
     /// PWM_ AMPL: User defined amplitude
     ///
@@ -126,8 +129,9 @@ mod pwm_conf {
     }
 }
 
-#[derive(Debug, Clone, Copy, PartialEq)]
 /// PWM_STATUS: Actual PWM scaler
+#[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash, Debug)]
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 pub struct PwmStatus<const M: u8> {
     /// Actual PWM scaler (255=max. Voltage)
     pub pwm_status: u8,

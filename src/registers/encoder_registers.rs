@@ -4,9 +4,12 @@
 
 use super::Register;
 use crate::bits::{read_bool_from_bit, read_from_bit, write_bool_to_bit, write_from_bit};
+#[cfg(feature = "serde")]
+use serde::{Deserialize, Serialize};
 
-#[derive(Debug, Clone, Copy, PartialEq)]
 /// ENCMODE: Encoder configuration and use of N channel
+#[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash, Debug)]
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 pub struct EncMode<const N: u8> {
     /// pol_A: Required A polarity for an N channel event (false=neg., true=pos.)
     pub pol_a: bool,
@@ -136,8 +139,9 @@ mod enc_mode {
     }
 }
 
-#[derive(Debug, Clone, Copy, PartialEq)]
 /// X_ENC: Actual encoder position (signed)
+#[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash, Debug)]
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 pub struct XEnc<const N: u8> {
     /// Actual encoder position (signed)
     pub x_enc: i32,
@@ -201,7 +205,6 @@ mod x_enc {
     }
 }
 
-#[derive(Debug, Clone, Copy, PartialEq)]
 /// ENC_CONST: Accumulation constant (signed) 16 bit integer part, 16 bit fractional part
 ///
 /// X_ENC accumulates:
@@ -215,6 +218,8 @@ mod x_enc {
 /// ENCMODE bit enc_sel_decimal switches between decimal and binary setting.
 ///
 /// Use the sign, to match rotation direction!
+#[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash, Debug)]
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 pub struct EncConst<const N: u8> {
     /// integer part
     pub enc_const_int: i16,
@@ -345,8 +350,9 @@ mod enc_const {
     }
 }
 
-#[derive(Debug, Clone, Copy, PartialEq)]
 /// ENC_STATUS
+#[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash, Debug)]
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 pub struct EncStatus<const N: u8> {
     /// n_event:
     /// - true: Encoder N event detected. Status bit is cleared on read: Read (R) + clear (C)
@@ -412,8 +418,9 @@ mod enc_status {
     }
 }
 
-#[derive(Debug, Clone, Copy, PartialEq)]
 /// ENC_LATCH: Encoder position X_ENC latched on N event
+#[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash, Debug)]
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 pub struct EncLatch<const N: u8> {
     /// Encoder position X_ENC latched on N event
     pub enc_latch: i32,

@@ -10,9 +10,12 @@
 
 use super::Register;
 use crate::bits::{read_bool_from_bit, read_from_bit, write_bool_to_bit, write_from_bit};
+#[cfg(feature = "serde")]
+use serde::{Deserialize, Serialize};
 
-#[derive(Debug, Clone, Copy, PartialEq)]
 /// IHOLD_IRUN: Driver current control
+#[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash, Debug)]
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 pub struct IHoldIRun<const M: u8> {
     /// IHOLD: Standstill current (0=1/32…31=32/32)
     ///
@@ -95,8 +98,9 @@ mod i_hold_i_run {
     }
 }
 
-#[derive(Debug, Clone, Copy, PartialEq)]
 /// VCOOLTHRS: coolStep & stallGuard lower threshold velocity (unsigned)
+#[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash, Debug)]
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 pub struct VCoolThrs<const M: u8> {
     /// coolStep & stallGuard lower threshold velocity (unsigned)
     ///
@@ -175,8 +179,9 @@ mod v_cool_thrs {
     }
 }
 
-#[derive(Debug, Clone, Copy, PartialEq)]
 /// VHIGH
+#[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash, Debug)]
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 pub struct VHigh<const M: u8> {
     /// VHIGH
     ///
@@ -250,8 +255,9 @@ mod v_high {
     }
 }
 
-#[derive(Debug, Clone, Copy, PartialEq)]
 /// VDCMIN: dcStep minimum velocity (unsigned)
+#[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash, Debug)]
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 pub struct VDcMin<const M: u8> {
     /// dcStep minimum velocity (unsigned)
     ///
@@ -328,8 +334,9 @@ mod v_dc_min {
     }
 }
 
-#[derive(Debug, Clone, Copy, PartialEq)]
 /// SW_MODE: Reference Switch & stallGuard2 Event Configuration
+#[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash, Debug)]
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 pub struct SwMode<const M: u8> {
     /// stop_l_enable:
     /// - true: Enables automatic motor stop during active left reference switch input
@@ -477,8 +484,9 @@ mod sw_mode {
     }
 }
 
-#[derive(Debug, Clone, Copy, PartialEq)]
 /// RAMP_STAT: Ramp and Reference Switch Status
+#[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash, Debug)]
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 pub struct RampStat<const M: u8> {
     /// status_stop_l: Reference switch left status (true=active)
     pub status_stop_l: bool,
@@ -646,8 +654,9 @@ mod ramp_stat {
     }
 }
 
-#[derive(Debug, Clone, Copy, PartialEq)]
 /// XLATCH: Ramp generator latch position
+#[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash, Debug)]
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 pub struct XLatch<const M: u8> {
     /// Ramp generator latch position
     ///

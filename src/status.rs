@@ -1,8 +1,11 @@
 //! TMC5072 status
 use crate::bits::{read_bool_from_bit, write_bool_to_bit};
+#[cfg(feature = "serde")]
+use serde::{Deserialize, Serialize};
 
 /// SPI Status Bits `SPI_STATUS`
 #[derive(Debug)]
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 pub struct SpiStatus {
     /// GSTAT\[0\] – 1: Signals, that a reset has occurred (clear by reading GSTAT)
     pub reset_flag: bool,

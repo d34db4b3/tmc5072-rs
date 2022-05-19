@@ -8,9 +8,12 @@
 
 use super::Register;
 use crate::bits::{read_bool_from_bit, read_from_bit, write_bool_to_bit, write_from_bit};
+#[cfg(feature = "serde")]
+use serde::{Deserialize, Serialize};
 
-#[derive(Debug, Clone, Copy, PartialEq)]
 /// GCONF: Global configuration flags
+#[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash, Debug)]
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 pub struct GConf {
     /// single_driver:
     /// - false: Two motors can be operated.
@@ -140,8 +143,9 @@ mod g_conf {
     }
 }
 
-#[derive(Debug, Clone, Copy, PartialEq)]
 /// GSTAT: Global status flags
+#[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash, Debug)]
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 pub struct GStat {
     /// reset:
     /// - true: Indicates that the IC has been reset since the last read access to GSTAT. All registers have been cleared to reset values.
@@ -218,8 +222,9 @@ mod g_stat {
     }
 }
 
-#[derive(Debug, Clone, Copy, PartialEq)]
 /// IFCNT: Interface transmission counter
+#[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash, Debug)]
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 pub struct IfCnt {
     /// Interface transmission counter. This register becomes incremented with each successful UART interface write access.
     /// It can be read out to check the serial transmission for lost data.
@@ -281,8 +286,9 @@ mod if_cnt {
     }
 }
 
-#[derive(Debug, Clone, Copy, PartialEq)]
 /// SLAVECONF
+#[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash, Debug)]
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 pub struct SlaveConf {
     /// SLAVEADDR:
     /// Sets the address of unit for the UART interface. The address becomes incremented by one when the external address pin NEXTADDR is active.
@@ -361,8 +367,9 @@ mod slave_conf {
     }
 }
 
-#[derive(Debug, Clone, Copy, PartialEq)]
 /// INPUT: Reads the digital state of all input pins available plus the state of IO pins set to output.
+#[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash, Debug)]
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 pub struct Input {
     /// io0_in: IO0 polarity
     pub io0: bool,
@@ -459,8 +466,9 @@ mod input {
     }
 }
 
-#[derive(Debug, Clone, Copy, PartialEq)]
 /// OUTPUT: Sets the IO output pin polarity and data direction.
+#[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash, Debug)]
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 pub struct Output {
     /// io0_out: IO0 output polarity
     pub io0: bool,
@@ -544,12 +552,13 @@ mod output {
     }
 }
 
-#[derive(Debug, Clone, Copy, PartialEq)]
 /// X_COMPARE: Position comparison register for motor 1 position strobe.
 /// Activate poscmp_enable to get position pulse on output PP.
 ///
 /// XACTUAL = X_COMPARE:
 /// - Output PP becomes high. It returns to a low state, if the positions mismatch.
+#[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash, Debug)]
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 pub struct XCompare {
     /// Position comparison register for motor 1 position strobe.
     pub x_compare: u32,
