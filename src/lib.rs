@@ -32,6 +32,10 @@
 //! In addition to these performance enhancements, TRINAMIC motor drivers offer safeguards to detect and protect against shorted outputs,
 //! output open-circuit, overtemperature, and undervoltage conditions for enhancing safety and recovery from equipment malfunctions.
 //!
+//! # Documents
+//!
+//! - [TCM5072 Datasheet (Trinamics)](https://www.trinamic.com/fileadmin/assets/Products/ICs_Documents/TMC5072_datasheet.pdf)
+
 //! # Example
 //!
 //! ```rust
