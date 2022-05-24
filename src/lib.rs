@@ -81,10 +81,10 @@
 //! # }
 //! #
 //! # fn main() -> Result<(), Error> {
-//! #    let spi = SpiMock;
+//! #    let mut spi = SpiMock;
 //! #    let cs = CsMock;
-//! let mut tmc5072 = Tmc5072::new(spi, cs)?;
-//! let spi_ok: SpiOk<XActual<0>> = tmc5072.read_register::<XActual<0>>()?;
+//! let mut tmc5072 = Tmc5072::new(&mut spi, cs)?;
+//! let spi_ok: SpiOk<XActual<0>> = tmc5072.read_register::<XActual<0>, _>(&mut spi)?;
 //! let x_actual: i32 = spi_ok.data.x_actual;
 //! #    Ok(())
 //! # }
@@ -129,23 +129,21 @@ impl<SPI, CS> From<SpiError<SPI, CS>> for InitError<SPI, CS> {
 }
 
 /// TMC5072 driver
-pub struct Tmc5072<SPI, CS> {
-    spi: SPI,
+pub struct Tmc5072<CS> {
     cs: CS,
     buffer: [u8; 5],
 }
 
-impl<SPI: Transfer<u8>, CS: OutputPin> Tmc5072<SPI, CS> {
+impl<CS: OutputPin> Tmc5072<CS> {
     /// Creates a new Tmc5072 driver from an SPI interface and a Chip Select pin
-    pub fn new(spi: SPI, cs: CS) -> Result<Self, InitError<SPI::Error, CS::Error>> {
-        let mut tmc5072 = Tmc5072 {
-            spi,
-            cs,
-            buffer: [0; 5],
-        };
+    pub fn new<SPI: Transfer<u8>>(
+        spi: &mut SPI,
+        cs: CS,
+    ) -> Result<Self, InitError<SPI::Error, CS::Error>> {
+        let mut tmc5072 = Tmc5072 { buffer: [0; 5], cs };
         // check IC version
         let version = tmc5072
-            .read_register::<registers::general_configuration_register::Input>()?
+            .read_register::<registers::general_configuration_register::Input, _>(spi)?
             .data
             .version;
         if version != IC_VERSION {
@@ -154,25 +152,36 @@ impl<SPI: Transfer<u8>, CS: OutputPin> Tmc5072<SPI, CS> {
         Ok(tmc5072)
     }
     /// Read a typed register from the Tmc5072
-    pub fn read_register<'a, R>(&mut self) -> SpiResult<R, SPI::Error, CS::Error>
+    pub fn read_register<'a, R, SPI: Transfer<u8>>(
+        &mut self,
+        spi: &mut SPI,
+    ) -> SpiResult<R, SPI::Error, CS::Error>
     where
         R: Register,
         u32: From<R>,
     {
-        self.read_raw(R::addr()).map(|x| x.map(|x| R::from(x)))
+        self.read_raw(R::addr(), spi).map(|x| x.map(|x| R::from(x)))
     }
     /// Write a typed register from the Tmc5072
-    pub fn write_register<'a, R>(&mut self, r: R) -> SpiResult<(), SPI::Error, CS::Error>
+    pub fn write_register<'a, R, SPI: Transfer<u8>>(
+        &mut self,
+        r: R,
+        spi: &mut SPI,
+    ) -> SpiResult<(), SPI::Error, CS::Error>
     where
         R: Register,
         u32: From<R>,
     {
         let data = u32::from(r);
-        self.write_raw(R::addr(), data)
+        self.write_raw(R::addr(), data, spi)
     }
     // TODO: optimize read (multiple commands (maybe iterators ?) to divide transfers by 2)
     /// Read a raw register from the Tmc5072
-    pub fn read_raw(&mut self, addr: u8) -> SpiResult<u32, SPI::Error, CS::Error> {
+    pub fn read_raw<SPI: Transfer<u8>>(
+        &mut self,
+        addr: u8,
+        spi: &mut SPI,
+    ) -> SpiResult<u32, SPI::Error, CS::Error> {
         self.buffer[0] = READ_FLAG | addr;
         self.buffer[1] = 0;
         self.buffer[2] = 0;
@@ -180,22 +189,23 @@ impl<SPI: Transfer<u8>, CS: OutputPin> Tmc5072<SPI, CS> {
         self.buffer[4] = 0;
         self.cs.set_low().map_err(SpiError::CSError)?;
         // send read command
-        self.spi
-            .transfer(&mut self.buffer)
-            .map_err(SpiError::SpiError)?;
+        spi.transfer(&mut self.buffer).map_err(SpiError::SpiError)?;
         self.cs.set_high().map_err(SpiError::CSError)?;
         // received previous command junk ignore
         self.buffer[0] = READ_FLAG | addr;
         self.cs.set_low().map_err(SpiError::CSError)?;
         // repeat command to get result
-        self.spi
-            .transfer(&mut self.buffer)
-            .map_err(SpiError::SpiError)?;
+        spi.transfer(&mut self.buffer).map_err(SpiError::SpiError)?;
         self.cs.set_high().map_err(SpiError::CSError)?;
         Ok(SpiOk::<u32>::from_buffer(&self.buffer))
     }
     /// Write a raw register from the Tmc5072
-    pub fn write_raw(&mut self, addr: u8, data: u32) -> SpiResult<(), SPI::Error, CS::Error> {
+    pub fn write_raw<SPI: Transfer<u8>>(
+        &mut self,
+        addr: u8,
+        data: u32,
+        spi: &mut SPI,
+    ) -> SpiResult<(), SPI::Error, CS::Error> {
         self.buffer[0] = WRITE_FLAG | addr;
         self.buffer[1] = (data >> 24) as u8;
         self.buffer[2] = (data >> 16) as u8;
@@ -203,9 +213,7 @@ impl<SPI: Transfer<u8>, CS: OutputPin> Tmc5072<SPI, CS> {
         self.buffer[4] = data as u8;
         self.cs.set_low().map_err(SpiError::CSError)?;
         // send write command
-        self.spi
-            .transfer(&mut self.buffer)
-            .map_err(SpiError::SpiError)?;
+        spi.transfer(&mut self.buffer).map_err(SpiError::SpiError)?;
         self.cs.set_high().map_err(SpiError::CSError)?;
         Ok(SpiOk::<()>::from_buffer(&self.buffer))
     }
