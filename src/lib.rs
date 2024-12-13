@@ -1,116 +1,17 @@
-//! TMC5072 driver
-//!
-//! Dual controller/driver for up to two 2-phase bipolar stepper motors.
-//! No-noise stepper operation. Integrated motion controller and encoder counter. SPI, UART (single wire) and Step/Dir
-//!
-//! # Description:
-//!
-//! The TMC5072 is a dual high performance stepper motor controller and driver IC with serial communication interfaces.
-//! It combines flexible ramp generators for automatic target positioning with industries' most advanced stepper motor drivers.
-//! Based on TRINAMICs sophisticated stealthChop chopper, the driver ensures absolutely noiseless operation combined with maximum efficiency and best motor torque.
-//! High integration, high energy efficiency and a small form factor enable miniaturized and scalable systems for cost effective solutions.
-//! The complete solution reduces learning curve to a minimum while giving best performance in class.
-//!
-//!
-//! # Key Concepts:
-//!
-//! The TMC5072 implements several advanced features which are exclusive to TRINAMIC products.
-//! These features contribute toward greater precision, greater energy efficiency, higher reliability, smoother motion, and cooler operation in many stepper motor applications.
-//!
-//! stealthChop™: No-noise, high-precision chopper algorithm for inaudible motion and inaudible standstill of the motor.
-//!
-//! dcStep™: Load dependent speed control. The motor moves as fast as possible and never loses a step.
-//!
-//! stallGuard2™: High-precision load measurement using the back EMF on the motor coils.
-//!
-//! coolStep™: Load-adaptive current control which reduces energy consumption by as much as 75%.
-//!
-//! spreadCycle™: High-precision chopper algorithm available as an alternative to the traditional constant off-time algorithm.
-//!
-//! sixPoint™: Fast and precise positioning using a hardware ramp generator with a set of four acceleration / deceleration settings. Quickest response due to dedicated hardware.
-//!
-//! In addition to these performance enhancements, TRINAMIC motor drivers offer safeguards to detect and protect against shorted outputs,
-//! output open-circuit, overtemperature, and undervoltage conditions for enhancing safety and recovery from equipment malfunctions.
-//!
-//! # Documents
-//!
-//! - [TCM5072 Datasheet (Trinamics)](https://www.trinamic.com/fileadmin/assets/Products/ICs_Documents/TMC5072_datasheet.pdf)
-
-//! # Example
-//!
-//! ```rust
-//! # use tmc5072::{Tmc5072, spi::{SpiError, SpiOk}, InitError, registers::ramp_generator_register::XActual};
-//! #
-//! # struct SpiMock;
-//! # impl embedded_hal::blocking::spi::Transfer<u8> for SpiMock {
-//! #     type Error = ();
-//! #
-//! #     fn transfer<'w>(&mut self, words: &'w mut [u8]) -> Result<&'w [u8], Self::Error> {
-//! #         words[0] = 0x00;
-//! #         words[1] = 0x10;
-//! #         words[2] = 0x00;
-//! #         words[3] = 0x00;
-//! #         words[4] = 0x00;
-//! #         Ok(words)
-//! #     }
-//! # }
-//! # struct CsMock;
-//! # impl embedded_hal::digital::v2::OutputPin for CsMock {
-//! #     type Error = ();
-//! #
-//! #     fn set_low(&mut self) -> Result<(), Self::Error> {
-//! #         Ok(())
-//! #     }
-//! #
-//! #     fn set_high(&mut self) -> Result<(), Self::Error> {
-//! #         Ok(())
-//! #     }
-//! # }
-//! #
-//! # #[derive(Debug)]
-//! # struct Error;
-//! # impl<SPI, CS> From<InitError<SPI, CS>> for Error {
-//! #     fn from(e: InitError<SPI, CS>) -> Self {
-//! #         Error
-//! #     }
-//! # }
-//! # impl<SPI, CS> From<SpiError<SPI, CS>> for Error {
-//! #     fn from(e: SpiError<SPI, CS>) -> Self {
-//! #         Error
-//! #     }
-//! # }
-//! #
-//! # fn main() -> Result<(), Error> {
-//! #    let mut spi = SpiMock;
-//! #    let cs = CsMock;
-//! let mut tmc5072 = Tmc5072::new(&mut spi, cs)?;
-//! let spi_ok: SpiOk<XActual<0>> = tmc5072.read_register::<XActual<0>, _>(&mut spi)?;
-//! let x_actual: i32 = spi_ok.data.x_actual;
-//! #    Ok(())
-//! # }
-//! ```
-//!
-//! # Warnings
-//!
-//! Not production ready yet, API could change in the future
-//!
-//! This crate only implements raw register access
-
 #![no_std]
-#![deny(missing_docs)]
+use embedded_hal as hal;
+use hal::digital::OutputPin;
+use hal::spi::SpiBus;
+use registers::{Register, IC_VERSION, READ_FLAG, WRITE_FLAG};
+#[cfg(feature = "serde")]
+use serde::{Deserialize, Serialize};
+use spi::{SpiError, SpiOk, SpiResult};
 
 #[doc(hidden)]
 mod bits;
 pub mod registers;
 pub mod spi;
 pub mod status;
-
-use embedded_hal as hal;
-use hal::{blocking::spi::Transfer, digital::v2::OutputPin};
-use registers::{Register, IC_VERSION, READ_FLAG, WRITE_FLAG};
-#[cfg(feature = "serde")]
-use serde::{Deserialize, Serialize};
-use spi::{SpiError, SpiOk, SpiResult};
 
 /// TMC5072 initialisation error
 #[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash, Debug)]
@@ -135,15 +36,15 @@ pub struct Tmc5072<CS> {
 }
 
 impl<CS: OutputPin> Tmc5072<CS> {
-    /// Creates a new Tmc5072 driver from an SPI interface and a Chip Select pin
-    pub fn new<SPI: Transfer<u8>>(
+    /// Creates a new Tmc5072 driver from an SPI bus and a Chip Select pin
+    pub fn new<SPI: SpiBus<u8>>(
         spi: &mut SPI,
         cs: CS,
     ) -> Result<Self, InitError<SPI::Error, CS::Error>> {
         let mut tmc5072 = Tmc5072 { buffer: [0; 5], cs };
         // check IC version
         let version = tmc5072
-            .read_register::<registers::general_configuration_register::Input, _>(spi)?
+            .read_register::<registers::general_configuration_register::Input, SPI>(spi)?
             .data
             .version;
         if version != IC_VERSION {
@@ -151,8 +52,9 @@ impl<CS: OutputPin> Tmc5072<CS> {
         };
         Ok(tmc5072)
     }
+
     /// Read a typed register from the Tmc5072
-    pub fn read_register<'a, R, SPI: Transfer<u8>>(
+    pub fn read_register<R, SPI: SpiBus<u8>>(
         &mut self,
         spi: &mut SPI,
     ) -> SpiResult<R, SPI::Error, CS::Error>
@@ -162,8 +64,9 @@ impl<CS: OutputPin> Tmc5072<CS> {
     {
         self.read_raw(R::addr(), spi).map(|x| x.map(|x| R::from(x)))
     }
-    /// Write a typed register from the Tmc5072
-    pub fn write_register<'a, R, SPI: Transfer<u8>>(
+
+    /// Write a typed register to the Tmc5072
+    pub fn write_register<R, SPI: SpiBus<u8>>(
         &mut self,
         r: R,
         spi: &mut SPI,
@@ -175,9 +78,9 @@ impl<CS: OutputPin> Tmc5072<CS> {
         let data = u32::from(r);
         self.write_raw(R::addr(), data, spi)
     }
-    // TODO: optimize read (multiple commands (maybe iterators ?) to divide transfers by 2)
+
     /// Read a raw register from the Tmc5072
-    pub fn read_raw<SPI: Transfer<u8>>(
+    pub fn read_raw<SPI: SpiBus<u8>>(
         &mut self,
         addr: u8,
         spi: &mut SPI,
@@ -187,20 +90,23 @@ impl<CS: OutputPin> Tmc5072<CS> {
         self.buffer[2] = 0;
         self.buffer[3] = 0;
         self.buffer[4] = 0;
+
         self.cs.set_low().map_err(SpiError::CSError)?;
-        // send read command
-        spi.transfer(&mut self.buffer).map_err(SpiError::SpiError)?;
+        // send read command, discard returned junk
+        spi.transfer_in_place(&mut self.buffer).map_err(SpiError::SpiError)?;
         self.cs.set_high().map_err(SpiError::CSError)?;
-        // received previous command junk ignore
+
+        // now actually read the register
         self.buffer[0] = READ_FLAG | addr;
         self.cs.set_low().map_err(SpiError::CSError)?;
-        // repeat command to get result
-        spi.transfer(&mut self.buffer).map_err(SpiError::SpiError)?;
+        spi.transfer_in_place(&mut self.buffer).map_err(SpiError::SpiError)?;
         self.cs.set_high().map_err(SpiError::CSError)?;
+
         Ok(SpiOk::<u32>::from_buffer(&self.buffer))
     }
-    /// Write a raw register from the Tmc5072
-    pub fn write_raw<SPI: Transfer<u8>>(
+
+    /// Write a raw register to the Tmc5072
+    pub fn write_raw<SPI: SpiBus<u8>>(
         &mut self,
         addr: u8,
         data: u32,
@@ -211,9 +117,9 @@ impl<CS: OutputPin> Tmc5072<CS> {
         self.buffer[2] = (data >> 16) as u8;
         self.buffer[3] = (data >> 8) as u8;
         self.buffer[4] = data as u8;
+
         self.cs.set_low().map_err(SpiError::CSError)?;
-        // send write command
-        spi.transfer(&mut self.buffer).map_err(SpiError::SpiError)?;
+        spi.transfer_in_place(&mut self.buffer).map_err(SpiError::SpiError)?;
         self.cs.set_high().map_err(SpiError::CSError)?;
         Ok(SpiOk::<()>::from_buffer(&self.buffer))
     }
@@ -226,7 +132,7 @@ mod test {
         general_configuration_register::GConf,
         motor_driver_register::ChopConf,
         ramp_generator_driver_feature_control_register::{IHoldIRun, VCoolThrs, VHigh},
-        ramp_generator_register::{AMax, DMax, RampMode, VMax, VStop, XActual, A1, D1, V1},
+        ramp_generator_register::{A1, AMax, D1, DMax, RampMode, V1, VMax, VStop, XActual},
         voltage_pwm_mode_stealth_chop::PwmConf,
     };
 
