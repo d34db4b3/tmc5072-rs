@@ -1,16 +1,16 @@
 [package]
 name = "tmc5072"
-version = "0.2.0"
+version = "0.3.0"
 edition = "2021"
-authors = ["Thomas POTIER <d34db4b3@protonmail.com>"]
+authors = ["Thomas POTIER <d34db4b3@protonmail.com>", "Jesse Bud <jbud@scylla.digital>"]
 license = "MIT OR Apache-2.0"
-description = "A TCM5072 driver compatible with `embedded-hal`"
-homepage = "https://github.com/d34db4b3/tmc5072-rs"
-repository = "https://github.com/d34db4b3/tmc5072-rs"
+description = "A TCM5072 driver compatible with `embedded-hal - Patch provided by Scylla Digital AU`"
+homepage = "https://github.com/TheOpenDevProject/tmc5072-rs"
+repository = "https://github.com/TheOpenDevProject/tmc5072-rs"
 readme = "README.md"
 keywords = ["embedded-hal", "embedded", "trinamics", "tmc5072", "no-std"]
 categories = ["embedded", "no-std", "science::robotics"]
 
 [dependencies]
-embedded-hal = "~0.2"
+embedded-hal = "1.0.0"
 serde = { version = "1.0", optional = true, features = ["derive"] }
