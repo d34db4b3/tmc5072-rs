@@ -39,52 +39,52 @@
 //! # Example
 //!
 //! ```rust
-//! # use tmc5072::{Tmc5072, spi::{SpiError, SpiOk}, InitError, registers::ramp_generator_register::XActual};
+//! # use tmc5072::{Tmc5072, spi::{SpiOk}, InitError, registers::ramp_generator_register::XActual};
 //! #
 //! # struct SpiMock;
-//! # impl embedded_hal::blocking::spi::Transfer<u8> for SpiMock {
-//! #     type Error = ();
-//! #
-//! #     fn transfer<'w>(&mut self, words: &'w mut [u8]) -> Result<&'w [u8], Self::Error> {
-//! #         words[0] = 0x00;
-//! #         words[1] = 0x10;
-//! #         words[2] = 0x00;
-//! #         words[3] = 0x00;
-//! #         words[4] = 0x00;
-//! #         Ok(words)
-//! #     }
-//! # }
-//! # struct CsMock;
-//! # impl embedded_hal::digital::v2::OutputPin for CsMock {
-//! #     type Error = ();
-//! #
-//! #     fn set_low(&mut self) -> Result<(), Self::Error> {
-//! #         Ok(())
-//! #     }
-//! #
-//! #     fn set_high(&mut self) -> Result<(), Self::Error> {
-//! #         Ok(())
-//! #     }
-//! # }
 //! #
 //! # #[derive(Debug)]
 //! # struct Error;
-//! # impl<SPI, CS> From<InitError<SPI, CS>> for Error {
-//! #     fn from(e: InitError<SPI, CS>) -> Self {
-//! #         Error
-//! #     }
-//! # }
-//! # impl<SPI, CS> From<SpiError<SPI, CS>> for Error {
-//! #     fn from(e: SpiError<SPI, CS>) -> Self {
-//! #         Error
+//! #
+//! # impl embedded_hal::spi::Error for Error {
+//! #     fn kind(&self) -> embedded_hal::spi::ErrorKind {
+//! #         todo!()
 //! #     }
 //! # }
 //! #
-//! # fn main() -> Result<(), Error> {
+//! # impl embedded_hal::spi::ErrorType for SpiMock {
+//! #    type Error = Error;
+//! # }
+//! # impl embedded_hal::spi::SpiDevice for SpiMock {
+//! #    fn transaction(&mut self, operations: &mut [embedded_hal::spi::Operation<'_, u8>]) -> Result<(), Self::Error> {
+//! #        for op in operations {
+//! #            match op {
+//! #                 embedded_hal::spi::Operation::TransferInPlace(buf @ [4, 0 | 16, 0, 0, 0]) => buf.copy_from_slice(&[0, 0x10, 0, 0, 0]),
+//! #                 embedded_hal::spi::Operation::TransferInPlace(buf @ [33, 0, 0, 0, 0]) => buf.copy_from_slice(&[0, 0, 0, 0, 0]),
+//! #                 _ => todo!(),
+//! #             }
+//! #        }
+//! #        Ok(())
+//! #    }
+//! # }
+//! #
+//! # #[derive(Debug)]
+//! # struct AnyError;
+//! # impl From<Error> for AnyError {
+//! #     fn from(_: Error) -> Self {
+//! #         AnyError
+//! #     }
+//! # }
+//! impl<E: embedded_hal::spi::ErrorType> From<InitError<E>> for AnyError {
+//! #     fn from(_: InitError<E>) -> Self {
+//! #         AnyError
+//! #     }
+//! # }
+//! #
+//! # fn main() -> Result<(), AnyError> {
 //! #    let mut spi = SpiMock;
-//! #    let cs = CsMock;
-//! let mut tmc5072 = Tmc5072::new(&mut spi, cs)?;
-//! let spi_ok: SpiOk<XActual<0>> = tmc5072.read_register::<XActual<0>, _>(&mut spi)?;
+//! let mut tmc5072 = Tmc5072::new(spi)?;
+//! let spi_ok: SpiOk<XActual<0>> = tmc5072.read_register::<XActual<0>>()?;
 //! let x_actual: i32 = spi_ok.data.x_actual;
 //! #    Ok(())
 //! # }
@@ -105,45 +105,39 @@ pub mod registers;
 pub mod spi;
 pub mod status;
 
-use embedded_hal as hal;
-use hal::{blocking::spi::Transfer, digital::v2::OutputPin};
+use embedded_hal::spi::{Operation, SpiDevice};
 use registers::{Register, IC_VERSION, READ_FLAG, WRITE_FLAG};
 #[cfg(feature = "serde")]
 use serde::{Deserialize, Serialize};
-use spi::{SpiError, SpiOk, SpiResult};
+use spi::{SpiOk, SpiResult};
 
-/// TMC5072 initialisation error
+/// TMC5072 initialization error
 #[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash, Debug)]
 #[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
-pub enum InitError<SPI, CS> {
+pub enum InitError<SPI: embedded_hal::spi::ErrorType> {
     /// SPI bus error
-    SpiError(SpiError<SPI, CS>),
+    Spi(SPI::Error),
     /// IC Version error (should be 0x10)
     VersionError(u8),
 }
 
-impl<SPI, CS> From<SpiError<SPI, CS>> for InitError<SPI, CS> {
-    fn from(e: SpiError<SPI, CS>) -> Self {
-        InitError::SpiError(e)
-    }
-}
-
 /// TMC5072 driver
-pub struct Tmc5072<CS> {
-    cs: CS,
+pub struct Tmc5072<SPI> {
+    spi: SPI,
     buffer: [u8; 5],
 }
 
-impl<CS: OutputPin> Tmc5072<CS> {
+impl<Spi: SpiDevice> Tmc5072<Spi> {
     /// Creates a new Tmc5072 driver from an SPI interface and a Chip Select pin
-    pub fn new<SPI: Transfer<u8>>(
-        spi: &mut SPI,
-        cs: CS,
-    ) -> Result<Self, InitError<SPI::Error, CS::Error>> {
-        let mut tmc5072 = Tmc5072 { buffer: [0; 5], cs };
+    pub fn new(spi: Spi) -> Result<Self, InitError<Spi>> {
+        let mut tmc5072 = Tmc5072 {
+            buffer: [0; 5],
+            spi,
+        };
         // check IC version
         let version = tmc5072
-            .read_register::<registers::general_configuration_register::Input, _>(spi)?
+            .read_register::<registers::general_configuration_register::Input>()
+            .map_err(InitError::Spi)?
             .data
             .version;
         if version != IC_VERSION {
@@ -152,69 +146,50 @@ impl<CS: OutputPin> Tmc5072<CS> {
         Ok(tmc5072)
     }
     /// Read a typed register from the Tmc5072
-    pub fn read_register<'a, R, SPI: Transfer<u8>>(
-        &mut self,
-        spi: &mut SPI,
-    ) -> SpiResult<R, SPI::Error, CS::Error>
+    pub fn read_register<R>(&mut self) -> SpiResult<R, Spi::Error>
     where
         R: Register,
         u32: From<R>,
     {
-        self.read_raw(R::addr(), spi).map(|x| x.map(|x| R::from(x)))
+        self.read_raw(R::addr()).map(|x| x.map(|x| R::from(x)))
     }
     /// Write a typed register from the Tmc5072
-    pub fn write_register<'a, R, SPI: Transfer<u8>>(
-        &mut self,
-        r: R,
-        spi: &mut SPI,
-    ) -> SpiResult<(), SPI::Error, CS::Error>
+    pub fn write_register<R>(&mut self, r: R) -> SpiResult<(), Spi::Error>
     where
         R: Register,
         u32: From<R>,
     {
         let data = u32::from(r);
-        self.write_raw(R::addr(), data, spi)
+        self.write_raw(R::addr(), data)
     }
     // TODO: optimize read (multiple commands (maybe iterators ?) to divide transfers by 2)
     /// Read a raw register from the Tmc5072
-    pub fn read_raw<SPI: Transfer<u8>>(
-        &mut self,
-        addr: u8,
-        spi: &mut SPI,
-    ) -> SpiResult<u32, SPI::Error, CS::Error> {
+    pub fn read_raw(&mut self, addr: u8) -> SpiResult<u32, Spi::Error> {
         self.buffer[0] = READ_FLAG | addr;
         self.buffer[1] = 0;
         self.buffer[2] = 0;
         self.buffer[3] = 0;
         self.buffer[4] = 0;
-        self.cs.set_low().map_err(SpiError::CSError)?;
         // send read command
-        spi.transfer(&mut self.buffer).map_err(SpiError::SpiError)?;
-        self.cs.set_high().map_err(SpiError::CSError)?;
+        self.spi
+            .transaction(&mut [Operation::TransferInPlace(&mut self.buffer)])?;
         // received previous command junk ignore
         self.buffer[0] = READ_FLAG | addr;
-        self.cs.set_low().map_err(SpiError::CSError)?;
         // repeat command to get result
-        spi.transfer(&mut self.buffer).map_err(SpiError::SpiError)?;
-        self.cs.set_high().map_err(SpiError::CSError)?;
+        self.spi
+            .transaction(&mut [Operation::TransferInPlace(&mut self.buffer)])?;
         Ok(SpiOk::<u32>::from_buffer(&self.buffer))
     }
     /// Write a raw register from the Tmc5072
-    pub fn write_raw<SPI: Transfer<u8>>(
-        &mut self,
-        addr: u8,
-        data: u32,
-        spi: &mut SPI,
-    ) -> SpiResult<(), SPI::Error, CS::Error> {
+    pub fn write_raw(&mut self, addr: u8, data: u32) -> SpiResult<(), Spi::Error> {
         self.buffer[0] = WRITE_FLAG | addr;
         self.buffer[1] = (data >> 24) as u8;
         self.buffer[2] = (data >> 16) as u8;
         self.buffer[3] = (data >> 8) as u8;
         self.buffer[4] = data as u8;
-        self.cs.set_low().map_err(SpiError::CSError)?;
         // send write command
-        spi.transfer(&mut self.buffer).map_err(SpiError::SpiError)?;
-        self.cs.set_high().map_err(SpiError::CSError)?;
+        self.spi
+            .transaction(&mut [Operation::TransferInPlace(&mut self.buffer)])?;
         Ok(SpiOk::<()>::from_buffer(&self.buffer))
     }
 }
