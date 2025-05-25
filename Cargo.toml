@@ -1,7 +1,7 @@
 [package]
 name = "tmc5072"
-version = "0.2.0"
-edition = "2021"
+version = "0.3.0"
+edition = "2024"
 authors = ["Thomas POTIER <d34db4b3@protonmail.com>"]
 license = "MIT OR Apache-2.0"
 description = "A TCM5072 driver compatible with `embedded-hal`"
