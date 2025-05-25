@@ -13,7 +13,7 @@
 
 ## Documents
 
-- [TCM5072 Datasheet (Trinamics)](https://www.trinamic.com/fileadmin/assets/Products/ICs_Documents/TMC5072_datasheet.pdf)
+- [TCM5072 Datasheet (ADI Trinamic)](https://www.analog.com/media/en/technical-documentation/data-sheets/TMC5072_datasheet_rev1.26.pdf)
 
 ## License
 
