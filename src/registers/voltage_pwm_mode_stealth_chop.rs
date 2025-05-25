@@ -27,22 +27,22 @@ pub struct PwmConf<const M: u8> {
     /// PWM_GRAD: User defined regulation loop gradient (bits 15..12 currently unused, set to 0)
     ///
     /// pwm_autoscale=false
-    /// - 0: stealthChop disabled
-    /// - 1..15: stealthChop enabled (the actual value is not used)
+    ///  - 0: stealthChop disabled
+    ///  - 1..15: stealthChop enabled (the actual value is not used)
     ///
     /// pwm_autoscale=true
-    /// - 0: stealthChop disabled
-    /// - 1..15: User defined maximum PWM amplitude change per half wave (1 to 15)
+    ///  - 0: stealthChop disabled
+    ///  - 1..15: User defined maximum PWM amplitude change per half wave (1 to 15)
     pub pwm_grad: u8,
     /// pwm_freq: PWM frequency selection
-    /// - %00: fPWM=2/1024 fCLK
-    /// - %01: fPWM=2/683 fCLK
-    /// - %10: fPWM=2/512 fCLK
-    /// - %11: fPWM=2/410 fCLK
+    ///  - %00: fPWM=2/1024 fCLK
+    ///  - %01: fPWM=2/683 fCLK
+    ///  - %10: fPWM=2/512 fCLK
+    ///  - %11: fPWM=2/410 fCLK
     pub pwm_freq: u8,
     /// pwm_autoscale: PWM automatic amplitude scaling
-    /// - false: User defined PWM amplitude. The current settings have no influence.
-    /// - true: Enable automatic current control
+    ///  - false: User defined PWM amplitude. The current settings have no influence.
+    ///  - true: Enable automatic current control
     ///
     /// Attention: When using a user defined sine wave table, the amplitude of this sine wave table should not be less than 244.
     /// Best results are obtained with 247 to 252 as peak values.
@@ -50,10 +50,10 @@ pub struct PwmConf<const M: u8> {
     /// freewheel: Allows different standstill modes
     ///
     /// Stand still option when motor current setting is zero (I_HOLD=0).
-    /// - %00: Normal operation
-    /// - %01: Freewheeling
-    /// - %10: Coil shorted using LS drivers
-    /// - %11: Coil shorted using HS drivers
+    ///  - %00: Normal operation
+    ///  - %01: Freewheeling
+    ///  - %10: Coil shorted using LS drivers
+    ///  - %11: Coil shorted using HS drivers
     pub freewheel: u8,
 }
 

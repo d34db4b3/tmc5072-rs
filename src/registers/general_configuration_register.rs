@@ -16,8 +16,8 @@ use serde::{Deserialize, Serialize};
 #[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 pub struct GConf {
     /// single_driver:
-    /// - false: Two motors can be operated.
-    /// - true: Single motor, double current operation - driver 2
+    ///  - false: Two motors can be operated.
+    ///  - true: Single motor, double current operation - driver 2
     ///
     /// outputs are identical to driver 1, all driver 2
     /// related controls are unused in this mode.
@@ -25,46 +25,46 @@ pub struct GConf {
     /// Attention: Set correctly before driver enable!
     pub single_diver: bool,
     /// stepdir1_enable:
-    /// - false: Motor 1 is driven by internal ramp generator 1.
-    /// - true: External control of motor 1 using STEP1 and DIR1 - ramp generator 1 is not used.
+    ///  - false: Motor 1 is driven by internal ramp generator 1.
+    ///  - true: External control of motor 1 using STEP1 and DIR1 - ramp generator 1 is not used.
     pub stepdir1_enable: bool,
     /// stepdir2_enable:
-    /// - false: Motor 2 is driven by internal ramp generator 2.
-    /// - true: External control of motor 2 using STEP2 and DIR2 - ramp generator 2 is not used.
+    ///  - false: Motor 2 is driven by internal ramp generator 2.
+    ///  - true: External control of motor 2 using STEP2 and DIR2 - ramp generator 2 is not used.
     pub stepdir2_enable: bool,
     /// poscmp_enable:
-    /// - false: Encoder 1 A and B inputs are mapped.
-    /// - true: Position compare pulse (PP) and interrupt output (INT) are available, Encoder 1 is unused.
+    ///  - false: Encoder 1 A and B inputs are mapped.
+    ///  - true: Position compare pulse (PP) and interrupt output (INT) are available, Encoder 1 is unused.
     pub poscmp_enable: bool,
     /// enc1_refsel:
-    /// - false: N channel 1 mapped depending on interface to SWIOP (if SW_SEL=0) or IO0 (if SW_SEL=1).
-    /// - true: N channel 1 mapped to REFL1
+    ///  - false: N channel 1 mapped depending on interface to SWIOP (if SW_SEL=0) or IO0 (if SW_SEL=1).
+    ///  - true: N channel 1 mapped to REFL1
     pub enc1_refsel: bool,
     /// enc2_enable:
-    /// - false: Right reference switches are available.
-    /// - true: Encoder 2 A and B signals are mapped to REFR1 and REFR2 inputs.
+    ///  - false: Right reference switches are available.
+    ///  - true: Encoder 2 A and B signals are mapped to REFR1 and REFR2 inputs.
     pub enc2_enable: bool,
     /// enc2_refsel:
-    /// - false: N channel 2 mapped depending on interface to SWION (if SW_SEL=0) or IO1 (if SW_SEL=1).
-    /// - true: N channel 2 mapped to REFL2.
+    ///  - false: N channel 2 mapped depending on interface to SWION (if SW_SEL=0) or IO1 (if SW_SEL=1).
+    ///  - true: N channel 2 mapped to REFL2.
     pub enc2_refsel: bool,
     /// test_mode:
-    /// - false: Normal operation
-    /// - true: Enable analog test output on pin REFR2 SLAVEADDR selects the function of REFR2: 0..4: T120, DAC1, VDDH1, DAC2, VDDH2
+    ///  - false: Normal operation
+    ///  - true: Enable analog test output on pin REFR2 SLAVEADDR selects the function of REFR2: 0..4: T120, DAC1, VDDH1, DAC2, VDDH2
     ///
     /// Attention: Not for user, set to false for normal operation!
     pub test_mode: bool,
     /// shaft1:
-    /// - true: Inverse motor 1 direction
+    ///  - true: Inverse motor 1 direction
     pub shaft1: bool,
     /// shaft2:
-    /// - true: Inverse motor 2 direction
+    ///  - true: Inverse motor 2 direction
     pub shaft2: bool,
     /// lock_gconf:
-    /// - true: GCONF is locked against further write access.
+    ///  - true: GCONF is locked against further write access.
     pub lock_gconf: bool,
     /// dc_sync:
-    /// - true: Synchronizes both motors, when both are operated in dcStep mode. The slower motor will slow down the other motor, too.
+    ///  - true: Synchronizes both motors, when both are operated in dcStep mode. The slower motor will slow down the other motor, too.
     pub dc_sync: bool,
 }
 
@@ -148,18 +148,20 @@ mod g_conf {
 #[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 pub struct GStat {
     /// reset:
-    /// - true: Indicates that the IC has been reset since the last read access to GSTAT. All registers have been cleared to reset values.
+    ///  - true: Indicates that the IC has been reset since the last read access to GSTAT. All registers have been cleared to reset values.
     pub reset: bool,
     /// drv_err1:
-    /// - true: Indicates, that driver 1 has been shut down due to overtemperature or short circuit detection since the last read access.
+    ///  - true: Indicates, that driver 1 has been shut down due to overtemperature or short circuit detection since the last read access.
+    ///
     /// Read DRV_STATUS1 for details. The flag can only be reset when all error conditions are cleared.
     pub drv_err1: bool,
     /// drv_err2:
-    /// - true: Indicates, that driver 2 has been shut down due to overtemperature or short circuit detection since the last read access.
+    ///  - true: Indicates, that driver 2 has been shut down due to overtemperature or short circuit detection since the last read access.
+    ///
     /// Read DRV_STATUS2 for details. The flag can only be reset when all error conditions are cleared.
     pub drv_err2: bool,
     /// uv_cp:
-    /// - true: Indicates an undervoltage on the charge pump. The driver is disabled in this case.
+    ///  - true: Indicates an undervoltage on the charge pump. The driver is disabled in this case.
     pub uv_cp: bool,
 }
 
@@ -298,14 +300,14 @@ pub struct SlaveConf {
     /// In ring mode, 0 disables forwarding.
     pub slave_addr: u8,
     /// SENDDELAY:
-    /// - 0, 1: 8 bit times (not allowed with multiple slaves)
-    /// - 2, 3: 3*8 bit times
-    /// - 4, 5: 5*8 bit times
-    /// - 6, 7: 7*8 bit times
-    /// - 8, 9: 9*8 bit times
-    /// - 10, 11: 11*8 bit times
-    /// - 12, 13: 13*8 bit times
-    /// - 14, 15: 15*8 bit times
+    ///  - 0, 1: 8 bit times (not allowed with multiple slaves)
+    ///  - 2, 3: 3*8 bit times
+    ///  - 4, 5: 5*8 bit times
+    ///  - 6, 7: 7*8 bit times
+    ///  - 8, 9: 9*8 bit times
+    ///  - 10, 11: 11*8 bit times
+    ///  - 12, 13: 13*8 bit times
+    ///  - 14, 15: 15*8 bit times
     pub send_delay: u8,
 }
 
@@ -556,7 +558,7 @@ mod output {
 /// Activate poscmp_enable to get position pulse on output PP.
 ///
 /// XACTUAL = X_COMPARE:
-/// - Output PP becomes high. It returns to a low state, if the positions mismatch.
+///  - Output PP becomes high. It returns to a low state, if the positions mismatch.
 #[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash, Debug)]
 #[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 pub struct XCompare {

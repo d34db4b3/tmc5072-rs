@@ -1,8 +1,9 @@
 //! Microstep Table Registers
 //!
 //! MSLUT: Each bit gives the difference between entry x and entry x+1 when combined with the corresponding MSLUTSEL W bits:
-//! - false: W= %00: -1, %01: +0, %10: +1, %11: +2
-//! - true: W= %00: +0, %01: +1, %10: +2, %11: +3
+//!  - false: W= %00: -1, %01: +0, %10: +1, %11: +2
+//!  - true: W= %00: +0, %01: +1, %10: +2, %11: +3
+//!
 //! This is the differential coding for the first quarter of a wave.
 //! Start values for CUR_A and CUR_B are stored for MSCNT position 0 in START_SIN and START_SIN90.
 
@@ -499,17 +500,18 @@ mod ms_lut7 {
 /// MSLUTSEL: Look up Table Segmentation
 ///
 /// Width control bit coding W0…W3:
-/// - %00: MSLUT entry 0, 1 select: -1, +0
-/// - %01: MSLUT entry 0, 1 select: +0, +1
-/// - %10: MSLUT entry 0, 1 select: +1, +2
-/// - %11: MSLUT entry 0, 1 select: +2, +3
+///  - %00: MSLUT entry 0, 1 select: -1, +0
+///  - %01: MSLUT entry 0, 1 select: +0, +1
+///  - %10: MSLUT entry 0, 1 select: +1, +2
+///  - %11: MSLUT entry 0, 1 select: +2, +3
 ///
 /// The sine wave look up table can be divided into up to four segments using an individual step width control entry Wx.
 /// The segment borders are selected by X1, X2 and X3.
-/// - Segment 0 goes from 0 to X1-1.
-/// - Segment 1 goes from X1 to X2-1.
-/// - Segment 2 goes from X2 to X3-1.
-/// - Segment 3 goes from X3 to 255.
+///  - Segment 0 goes from 0 to X1-1.
+///  - Segment 1 goes from X1 to X2-1.
+///  - Segment 2 goes from X2 to X3-1.
+///  - Segment 3 goes from X3 to 255.
+///
 /// For defined response the values shall satisfy: 0<X1<X2<X3
 #[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash, Debug)]
 #[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]

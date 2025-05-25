@@ -17,10 +17,10 @@ use serde::{Deserialize, Serialize};
 #[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 pub struct RampMode<const M: u8> {
     /// RAMPMODE:
-    /// - 0: Positioning mode (using all A, D and V parameters)
-    /// - 1: Velocity mode to positive VMAX (using AMAX acceleration)
-    /// - 2: Velocity mode to negative VMAX (using AMAX acceleration)
-    /// - 3: Hold mode (velocity remains unchanged, unless stop event occurs)
+    ///  - 0: Positioning mode (using all A, D and V parameters)
+    ///  - 1: Velocity mode to positive VMAX (using AMAX acceleration)
+    ///  - 2: Velocity mode to negative VMAX (using AMAX acceleration)
+    ///  - 3: Hold mode (velocity remains unchanged, unless stop event occurs)
     pub ramp_mode: u8,
 }
 
@@ -182,7 +182,7 @@ impl<const M: u8> From<VActual<M>> for u32 {
             &mut value,
             0,
             0xffffff,
-            convert_from_signed_n(data.v_actual, 24) as u32,
+            convert_from_signed_n(data.v_actual, 24),
         );
         value
     }
@@ -251,7 +251,7 @@ impl<const M: u8> From<u32> for VStart<M> {
 impl<const M: u8> From<VStart<M>> for u32 {
     fn from(data: VStart<M>) -> Self {
         let mut value = 0;
-        write_from_bit(&mut value, 0, 0x3ffff, data.v_start as u32);
+        write_from_bit(&mut value, 0, 0x3ffff, data.v_start);
         value
     }
 }
@@ -385,7 +385,7 @@ impl<const M: u8> From<u32> for V1<M> {
 impl<const M: u8> From<V1<M>> for u32 {
     fn from(data: V1<M>) -> Self {
         let mut value = 0;
-        write_from_bit(&mut value, 0, 0xfffff, data.v1 as u32);
+        write_from_bit(&mut value, 0, 0xfffff, data.v1);
         value
     }
 }
@@ -521,7 +521,7 @@ impl<const M: u8> From<u32> for VMax<M> {
 impl<const M: u8> From<VMax<M>> for u32 {
     fn from(data: VMax<M>) -> Self {
         let mut value = 0;
-        write_from_bit(&mut value, 0, 0x7fffff, data.v_max as u32);
+        write_from_bit(&mut value, 0, 0x7fffff, data.v_max);
         value
     }
 }
@@ -724,7 +724,7 @@ impl<const M: u8> From<u32> for VStop<M> {
 impl<const M: u8> From<VStop<M>> for u32 {
     fn from(data: VStop<M>) -> Self {
         let mut value = 0;
-        write_from_bit(&mut value, 0, 0x3ffff, data.v_stop as u32);
+        write_from_bit(&mut value, 0, 0x3ffff, data.v_stop);
         value
     }
 }

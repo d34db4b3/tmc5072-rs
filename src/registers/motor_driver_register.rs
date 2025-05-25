@@ -118,13 +118,13 @@ impl<const M: u8> From<MsCurAct<M>> for u32 {
             &mut value,
             0,
             0x1ff,
-            convert_from_signed_n(data.cur_a as i32, 9) as u32,
+            convert_from_signed_n(data.cur_a as i32, 9),
         );
         write_from_bit(
             &mut value,
             16,
             0x1ff,
-            convert_from_signed_n(data.cur_b as i32, 9) as u32,
+            convert_from_signed_n(data.cur_b as i32, 9),
         );
         value
     }
@@ -178,9 +178,9 @@ pub struct ChopConf<const M: u8> {
     /// Off time setting controls duration of slow decay phase
     ///
     /// NCLK= 12 + 32*TOFF
-    /// - %0000: Driver disable, all bridges off
-    /// - %0001: 1 – use only with TBL ≥ 36 clocks
-    /// - %0010..%1111: 2..15
+    ///  - %0000: Driver disable, all bridges off
+    ///  - %0001: 1 – use only with TBL ≥ 36 clocks
+    ///  - %0010..%1111: 2..15
     pub toff: u8,
     /// chm=false:
     ///
@@ -225,12 +225,12 @@ pub struct ChopConf<const M: u8> {
     /// chm=true: disfdcc=1 disables current comparator usage for termination of the fast decay cycle
     pub disfdcc: bool,
     /// rndtf: random TOFF time
-    /// - false: Chopper off time is fixed as set by TOFF
-    /// - true: Random mode, TOFF is random modulated by dNCLK= -12..+3 clocks.
+    ///  - false: Chopper off time is fixed as set by TOFF
+    ///  - true: Random mode, TOFF is random modulated by dNCLK= -12..+3 clocks.
     pub rndtf: bool,
     /// chm: chopper mode
-    /// - false: Standard mode (spreadCycle)
-    /// - true: Constant off time with fast decay time.
+    ///  - false: Standard mode (spreadCycle)
+    ///  - true: Constant off time with fast decay time.
     ///
     /// Fast decay time is also terminated when the negative nominal current is reached. Fast decay is after on time.
     pub chm: bool,
@@ -241,8 +241,8 @@ pub struct ChopConf<const M: u8> {
     /// Hint: %01 or %10 recommended for most applications
     pub tbl: u8,
     /// vsense: sense resistor voltage based current scaling
-    /// - false: Low sensitivity, high sense resistor voltage
-    /// - true: High sensitivity, low sense resistor voltage
+    ///  - false: Low sensitivity, high sense resistor voltage
+    ///  - true: High sensitivity, low sense resistor voltage
     pub vsense: bool,
     /// vhighfs: high velocity fullstep selection
     ///
@@ -268,16 +268,16 @@ pub struct ChopConf<const M: u8> {
     /// Hint: Reduced microstep resolutions are also useful in special cases to extend the acceleration or position range
     pub mres: u8,
     /// intpol16: 16 microsteps with interpolation
-    /// - true: In 16 microstep mode with Step/Dir interface, the microstep resolution becomes extrapolated to 256 microsteps for smoothest motor operation
+    ///  - true: In 16 microstep mode with Step/Dir interface, the microstep resolution becomes extrapolated to 256 microsteps for smoothest motor operation
     pub intpol16: bool,
     /// dedge: enable double edge step pulses
-    /// - true: Enable step impulse at each step edge to reduce step frequency requirement.
+    ///  - true: Enable step impulse at each step edge to reduce step frequency requirement.
     ///
     /// Attention: Use only in Step/Dir mode.
     pub dedge: bool,
     /// diss2g short to GND protection disable
-    /// - false: Short to GND protection is on
-    /// - true: Short to GND protection is disabled
+    ///  - false: Short to GND protection is on
+    ///  - true: Short to GND protection is disabled
     pub diss2g: bool,
 }
 
@@ -383,8 +383,8 @@ pub struct CoolConf<const M: u8> {
     /// semin: minimum stallGuard2 value for smart current control and smart current enable
     ///
     /// If the stallGuard2 result falls below SEMIN*32, the motor current becomes increased to reduce motor load angle.
-    /// - %0000: smart current control coolStep off
-    /// - %0001..%1111: 1..15
+    ///  - %0000: smart current control coolStep off
+    ///  - %0001..%1111: 1..15
     pub semin: u8,
     /// seup: current up step width
     ///
@@ -399,25 +399,25 @@ pub struct CoolConf<const M: u8> {
     /// %0000..%1111: 0..15
     pub semax: u8,
     /// sedn: current down step speed
-    /// - %00: For each 32 stallGuard2 values decrease by one
-    /// - %01: For each 8 stallGuard2 values decrease by one
-    /// - %10: For each 2 stallGuard2 values decrease by one
-    /// - %11: For each stallGuard2 value decrease by one
+    ///  - %00: For each 32 stallGuard2 values decrease by one
+    ///  - %01: For each 8 stallGuard2 values decrease by one
+    ///  - %10: For each 2 stallGuard2 values decrease by one
+    ///  - %11: For each stallGuard2 value decrease by one
     pub sedn: u8,
     /// seimin: minimum current for smart current control
-    /// - false: 1/2 of current setting (IRUN)
-    /// - true: 1/4 of current setting (IRUN)
+    ///  - false: 1/2 of current setting (IRUN)
+    ///  - true: 1/4 of current setting (IRUN)
     pub seimin: bool,
     /// sgt: stallGuard2 threshold value
     ///
     /// This signed value controls stallGuard2 level for stall output and sets the optimum measurement range for readout.
     /// A lower value gives a higher sensitivity. Zero is the starting value working with most motors.
     ///
-    /// -64 to +63: A higher value makes stallGuard2 less sensitive and requires more torque to indicate a stall.
+    ///  -64 to +63: A higher value makes stallGuard2 less sensitive and requires more torque to indicate a stall.
     pub sgt: i8,
     /// sfilt: stallGuard2 filter enable
-    /// - false: Standard mode, high time resolution for stallGuard2
-    /// - true: Filtered mode, stallGuard2 signal updated for each four fullsteps only to compensate for motor pole tolerances
+    ///  - false: Standard mode, high time resolution for stallGuard2
+    ///  - true: Filtered mode, stallGuard2 signal updated for each four fullsteps only to compensate for motor pole tolerances
     pub sfilt: bool,
 }
 
@@ -605,7 +605,7 @@ pub struct DrvStatus<const M: u8> {
     /// As the motor heats up, its coil resistance rises and the chopper on-time increases.
     pub sg_result: u16,
     /// fsactive: full step active indicator
-    /// - true: Indicates that the driver has switched to fullstep as defined by chopper mode settings and velocity thresholds.
+    ///  - true: Indicates that the driver has switched to fullstep as defined by chopper mode settings and velocity thresholds.
     pub fsactive: bool,
     /// CS_ACTUAL: actual motor current / smart energy current
     ///
@@ -613,7 +613,7 @@ pub struct DrvStatus<const M: u8> {
     /// or for monitoring the function of the automatic current scaling.
     pub cs_actual: u8,
     /// stallGuard: stallGuard2 status
-    /// - true: Motor stall detected (SG_RESULT=0) or dcStep stall in dcStep mode.
+    ///  - true: Motor stall detected (SG_RESULT=0) or dcStep stall in dcStep mode.
     pub stall_guard: bool,
     /// ot: overtemperature flag
     ///  - true: Overtemperature limit has been reached. Drivers become disabled until otpw is also cleared due to cooling down of the IC.
@@ -621,26 +621,28 @@ pub struct DrvStatus<const M: u8> {
     /// The overtemperature flag is common for both drivers.
     pub ot: bool,
     /// otpw: overtemperature prewarning flag
-    /// - true: Overtemperature pre-warning threshold is exceeded.
+    ///  - true: Overtemperature pre-warning threshold is exceeded.
     ///
     /// The overtemperature pre-warning flag is common for both drivers.
     pub otpw: bool,
     /// s2ga short to ground indicator phase A
-    /// - true: Short to GND detected on phase A. The driver becomes disabled.
+    ///  - true: Short to GND detected on phase A. The driver becomes disabled.
+    ///
     /// The flags stay active, until the driver is disabled by software (TOFF=0) or by the ENN input.
     pub s2ga: bool,
     /// s2gb short to ground indicator phase B
-    /// - true: Short to GND detected on phase B. The driver becomes disabled.
+    ///  - true: Short to GND detected on phase B. The driver becomes disabled.
+    ///
     /// The flags stay active, until the driver is disabled by software (TOFF=0) or by the ENN input.
     pub s2gb: bool,
     /// ola open load indicator phase A
-    /// - true: Open load detected on phase A.
+    ///  - true: Open load detected on phase A.
     ///
     /// Hint: This is just an informative flag. The driver takes no action upon it.
     /// False detection may occur in fast motion and standstill. Check during slow motion or after a motion, only.
     pub ola: bool,
     /// olb open load indicator phase B
-    /// - true: Open load detected on phase B.
+    ///  - true: Open load detected on phase B.
     ///
     /// Hint: This is just an informative flag. The driver takes no action upon it.
     /// False detection may occur in fast motion and standstill. Check during slow motion or after a motion, only.

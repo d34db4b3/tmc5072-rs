@@ -34,7 +34,7 @@
 //!
 //! # Documents
 //!
-//! - [TCM5072 Datasheet (Trinamics)](https://www.trinamic.com/fileadmin/assets/Products/ICs_Documents/TMC5072_datasheet.pdf)
+//! - [TCM5072 Datasheet (ADI Trinamic)](https://www.analog.com/media/en/technical-documentation/data-sheets/TMC5072_datasheet_rev1.26.pdf)
 
 //! # Example
 //!
@@ -92,9 +92,9 @@
 //!
 //! # Warnings
 //!
-//! Not production ready yet, API could change in the future
+//! Not production ready yet, API could change in the future.
 //!
-//! This crate only implements raw register access
+//! This crate only implements raw register access.
 
 #![no_std]
 #![deny(missing_docs)]

@@ -50,7 +50,7 @@ where
 #[inline]
 pub(crate) fn convert_to_signed_n(from: u32, bits: u8) -> i32 {
     if from >> (bits - 1) & 1 == 1 {
-        (-1i32 & !((1 << bits) - 1)) | from as i32
+        (!((1 << bits) - 1)) | from as i32
     } else {
         from as i32
     }

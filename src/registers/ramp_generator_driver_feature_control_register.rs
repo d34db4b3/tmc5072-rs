@@ -27,8 +27,8 @@ pub struct IHoldIRun<const M: u8> {
     pub i_run: u8,
     /// IHOLDDELAY: Controls the number of clock cycles for motor power down after a motion as soon as TZEROWAIT has expired.
     /// The smooth transition avoids a motor jerk upon power down.
-    /// - 0: instant power down
-    /// - 1..15: Delay per current reduction step in multiple of 2^18 clocks
+    ///  - 0: instant power down
+    ///  - 1..15: Delay per current reduction step in multiple of 2^18 clocks
     pub i_hold_delay: u8,
 }
 
@@ -113,9 +113,8 @@ pub struct VCoolThrs<const M: u8> {
     /// This allows for homing procedures with stallGuard by blanking out the stallGuard signal at low velocities (will not work in combination with stealthChop).
     ///
     /// VHIGH ≥ |VACT| ≥ VCOOLTHRS:
-    /// - coolStep and stop on stall are enabled, if configured
-    /// - Voltage PWM mode stealthChop is switched off, if
-    /// configured
+    ///  - coolStep and stop on stall are enabled, if configured
+    ///  - Voltage PWM mode stealthChop is switched off, if configured
     ///
     /// (Only bits 22..8 are used for value and for comparison)
     pub v_cool_thrs: u32,
@@ -138,7 +137,7 @@ impl<const M: u8> From<u32> for VCoolThrs<M> {
 impl<const M: u8> From<VCoolThrs<M>> for u32 {
     fn from(data: VCoolThrs<M>) -> Self {
         let mut value = 0;
-        write_from_bit(&mut value, 0, 0x7fffff, data.v_cool_thrs as u32);
+        write_from_bit(&mut value, 0, 0x7fffff, data.v_cool_thrs);
         value
     }
 }
@@ -188,10 +187,10 @@ pub struct VHigh<const M: u8> {
     /// This velocity setting allows velocity dependent switching into a different chopper mode and fullstepping to maximize torque. (unsigned)
     ///
     /// |VACT| ≥ VHIGH:
-    /// - coolStep is disabled (motor runs with normal current scale)
-    /// - If vhighchm is set, the chopper switches to chm=1 with TFD=0 (constant off time with slow decay, only).
-    /// - If vhighfs is set, the motor operates in fullstep mode.
-    /// - Voltage PWM mode stealthChop is switched off, if configured
+    ///  - coolStep is disabled (motor runs with normal current scale)
+    ///  - If vhighchm is set, the chopper switches to chm=1 with TFD=0 (constant off time with slow decay, only).
+    ///  - If vhighfs is set, the motor operates in fullstep mode.
+    ///  - Voltage PWM mode stealthChop is switched off, if configured
     ///
     /// (Only bits 22..8 are used for value and for comparison)
     pub v_high: u32,
@@ -214,7 +213,7 @@ impl<const M: u8> From<u32> for VHigh<M> {
 impl<const M: u8> From<VHigh<M>> for u32 {
     fn from(data: VHigh<M>) -> Self {
         let mut value = 0;
-        write_from_bit(&mut value, 0, 0x7fffff, data.v_high as u32);
+        write_from_bit(&mut value, 0, 0x7fffff, data.v_high);
         value
     }
 }
@@ -264,11 +263,11 @@ pub struct VDcMin<const M: u8> {
     /// Automatic commutation dcStep becomes enabled above velocity VDCMIN (unsigned)
     /// In this mode, the actual position is determined by the sensorless motor commutation and becomes fed back to XACTUAL.
     /// In case the motor becomes heavily loaded, VDCMIN also is used as the minimum step velocity.
-    /// - 0: Disable, dcStep off
+    ///  - 0: Disable, dcStep off
     ///
     /// |VACT| ≥ VDCMIN ≥ 256:
-    /// - Triggers the same actions as exceeding VHIGH.
-    /// - Switches on automatic commutation dcStep
+    ///  - Triggers the same actions as exceeding VHIGH.
+    ///  - Switches on automatic commutation dcStep
     ///
     /// Hint: Also set bits vhighfs and vhighchm and set DCCTRL parameters in order to operate dcStep.
     ///
@@ -293,7 +292,7 @@ impl<const M: u8> From<u32> for VDcMin<M> {
 impl<const M: u8> From<VDcMin<M>> for u32 {
     fn from(data: VDcMin<M>) -> Self {
         let mut value = 0;
-        write_from_bit(&mut value, 0, 0x7fffff, data.v_dc_min as u32);
+        write_from_bit(&mut value, 0, 0x7fffff, data.v_dc_min);
         value
     }
 }
@@ -339,56 +338,58 @@ mod v_dc_min {
 #[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 pub struct SwMode<const M: u8> {
     /// stop_l_enable:
-    /// - true: Enables automatic motor stop during active left reference switch input
+    ///  - true: Enables automatic motor stop during active left reference switch input
     ///
     /// Hint: The motor restarts in case the stop switch becomes released.
     pub stop_l_enable: bool,
     /// stop_r_enable:
-    /// - true: Enables automatic motor stop during active right reference switch input
+    ///  - true: Enables automatic motor stop during active right reference switch input
     ///
     /// Hint: The motor restarts in case the stop switch becomes released.
     pub stop_r_enable: bool,
     /// pol_stop_l: Sets the active polarity of the left reference switch input
-    /// - false: non-inverted, high active: a high level on REFL stops the motor
-    /// - true: inverted, low active: a low level on REFL stops the motor
+    ///  - false: non-inverted, high active: a high level on REFL stops the motor
+    ///  - true: inverted, low active: a low level on REFL stops the motor
     pub pol_stop_l: bool,
     /// pol_stop_r: Sets the active polarity of the right reference switch input
-    /// - false: non-inverted, high active: a high level on REFR stops the motor
-    /// - true: inverted, low active: a low level on REFR stops the motor
+    ///  - false: non-inverted, high active: a high level on REFR stops the motor
+    ///  - true: inverted, low active: a low level on REFR stops the motor
     pub pol_stop_r: bool,
     /// swap_lr:
-    /// - true: Swap the left and the right reference switch input REFL and REFR
+    ///  - true: Swap the left and the right reference switch input REFL and REFR
     pub swap_lr: bool,
     /// latch_l_active:
-    /// - true: Activates latching of the position to XLATCH upon an active going edge on the left reference switch input REFL.
+    ///  - true: Activates latching of the position to XLATCH upon an active going edge on the left reference switch input REFL.
     ///
     /// Hint: Activate latch_l_active to detect any spurious stop event by reading status_latch_l.
     pub latch_l_active: bool,
     /// latch_l_inactive:
-    /// - true: Activates latching of the position to XLATCH upon an inactive going edge on the left reference switch input REFL.
+    ///  - true: Activates latching of the position to XLATCH upon an inactive going edge on the left reference switch input REFL.
+    ///
     /// The active level is defined by pol_stop_l.
     pub latch_l_inactive: bool,
     /// latch_r_active:
-    /// - true: Activates latching of the position to XLATCH upon an active going edge on the right reference switch input REFR.
+    ///  - true: Activates latching of the position to XLATCH upon an active going edge on the right reference switch input REFR.
     ///
     /// Hint: Activate latch_r_active to detect any spurious stop event by reading status_latch_r
     pub latch_r_active: bool,
     /// latch_r_inactive:
-    /// - true: Activates latching of the position to XLATCH upon an inactive going edge on the right reference switch input REFR.
+    ///  - true: Activates latching of the position to XLATCH upon an inactive going edge on the right reference switch input REFR.
+    ///
     /// The active level is defined by pol_stop_r.
     pub latch_r_inactive: bool,
     /// en_latch_encoder:
-    /// - true: Latch encoder position to ENC_LATCH upon reference switch event.
+    ///  - true: Latch encoder position to ENC_LATCH upon reference switch event.
     pub en_latch_encoder: bool,
     /// sg_stop:
-    /// - true: Enable stop by stallGuard2. Disable to release motor after stop event.
+    ///  - true: Enable stop by stallGuard2. Disable to release motor after stop event.
     ///
     /// Attention: Do not enable during motor spin-up, wait until the motor velocity exceeds a certain value,
     /// where stallGuard2 delivers a stable result, or set VCOOLTHRS to a suitable value
     pub sg_stop: bool,
     /// en_softstop:
-    /// - false: Hard stop
-    /// - true: Soft stop
+    ///  - false: Hard stop
+    ///  - true: Soft stop
     ///
     /// The soft stop mode always uses the deceleration ramp settings DMAX, V1, D1, VSTOP and TZEROWAIT for stopping the motor.
     /// A stop occurs when the velocity sign matches the reference switch position (REFL for negative velocities, REFR for positive velocities)
@@ -493,17 +494,17 @@ pub struct RampStat<const M: u8> {
     /// status_stop_r: Reference switch right status (true=active)
     pub status_stop_r: bool,
     /// status_latch_l:
-    /// - true: Latch left ready (enable position latching using SWITCH_MODE settings latch_l_active or latch_l_inactive)
+    ///  - true: Latch left ready (enable position latching using SWITCH_MODE settings latch_l_active or latch_l_inactive)
     ///
     /// (Flag is cleared upon reading)
     pub status_latch_l: bool,
     /// status_latch_r:
-    /// - true: Latch right ready (enable position latching using SWITCH_MODE settings latch_r_active or latch_r_inactive)
+    ///  - true: Latch right ready (enable position latching using SWITCH_MODE settings latch_r_active or latch_r_inactive)
     ///
     /// (Flag is cleared upon reading)
     pub status_latch_r: bool,
     /// event_stop_l:
-    /// - true: Signals an active stop left condition due to stop switch.
+    ///  - true: Signals an active stop left condition due to stop switch.
     ///
     /// The stop condition and the interrupt condition can be removed by setting RAMP_MODE to hold mode
     /// or by commanding a move to the opposite direction.
@@ -513,7 +514,7 @@ pub struct RampStat<const M: u8> {
     /// This bit is ORed to the interrupt output signal.
     pub event_stop_l: bool,
     ///event_stop_r:
-    /// - true: Signals an active stop right condition due to stop switch.
+    ///  - true: Signals an active stop right condition due to stop switch.
     ///
     /// The stop condition and the interrupt condition can be removed by setting RAMP_MODE to hold mode
     /// or by commanding a move to the opposite direction.
@@ -523,7 +524,7 @@ pub struct RampStat<const M: u8> {
     /// This bit is ORed to the interrupt output signal.
     pub event_stop_r: bool,
     /// event_stop_sg:
-    /// - true: Signals an active StallGuard2 stop event.
+    ///  - true: Signals an active StallGuard2 stop event.
     ///
     /// Reading the register will clear the stall condition and the motor may re-start motion, unless the motion controller has been stopped.
     ///
@@ -532,35 +533,35 @@ pub struct RampStat<const M: u8> {
     /// This bit is ORed to the interrupt output signal.
     pub event_stop_sg: bool,
     /// event_pos_reached:
-    /// - true: Signals, that the target position has been reached (position_reached becoming active).
+    ///  - true: Signals, that the target position has been reached (position_reached becoming active).
     ///
     /// (Flag and interrupt condition are cleared upon reading)
     ///
     /// This bit is ORed to the interrupt output signal.
     pub event_pos_reached: bool,
     /// velocity_reached:
-    /// - true: Signals, that the target velocity is reached.
+    ///  - true: Signals, that the target velocity is reached.
     ///
     /// This flag becomes set while VACTUAL and VMAX match
     pub velocity_reached: bool,
     /// position_reached:
-    /// - true: Signals, that the target position is reached.
+    ///  - true: Signals, that the target position is reached.
     ///
     /// This flag becomes set while XACTUAL and XTARGET match.
     pub position_reached: bool,
     /// vzero :
-    /// - true: Signals, that the actual velocity is 0.
+    ///  - true: Signals, that the actual velocity is 0.
     pub vzero: bool,
     /// t_zerowait_active:
-    /// - true: Signals, that TZEROWAIT is active after a motor stop. During this time, the motor is in standstill.
+    ///  - true: Signals, that TZEROWAIT is active after a motor stop. During this time, the motor is in standstill.
     pub t_zerowait_active: bool,
     /// second_move:
-    /// - true: Signals that the automatic ramp required moving back in the opposite direction, e.g. due to on-the-fly parameter change
+    ///  - true: Signals that the automatic ramp required moving back in the opposite direction, e.g. due to on-the-fly parameter change
     ///
     /// (Flag is cleared upon reading)
     pub second_move: bool,
     /// status_sg:
-    /// - true: Signals an active stallGuard2 input from the coolStep driver or from the dcStep unit, if enabled.
+    ///  - true: Signals an active stallGuard2 input from the coolStep driver or from the dcStep unit, if enabled.
     ///
     /// Hint: When polling this flag, stall events may be missed – activate sg_stop to be sure not to miss the stall event.
     pub status_sg: bool,
@@ -683,7 +684,7 @@ impl<const M: u8> From<u32> for XLatch<M> {
 impl<const M: u8> From<XLatch<M>> for u32 {
     fn from(data: XLatch<M>) -> Self {
         let mut value = 0;
-        write_from_bit(&mut value, 0, 0xffffffff, data.x_latch as u32);
+        write_from_bit(&mut value, 0, 0xffffffff, data.x_latch);
         value
     }
 }

@@ -18,41 +18,41 @@ pub struct EncMode<const N: u8> {
     /// pol_N: Defines active polarity of N (false=neg., true=pos.)
     pub pol_n: bool,
     /// ignore_AB:
-    /// - false: An N event occurs only when polarities given by pol_N, pol_A and pol_B match.
-    /// - true: Ignore A and B polarity for N channel event
+    ///  - false: An N event occurs only when polarities given by pol_N, pol_A and pol_B match.
+    ///  - true: Ignore A and B polarity for N channel event
     pub ignore_ab: bool,
     /// clr_cont:
-    /// - true: Always latch or latch and clear X_ENC upon an N event (once per revolution, it is recommended to combine this setting with edge sensitive N event)
+    ///  - true: Always latch or latch and clear X_ENC upon an N event (once per revolution, it is recommended to combine this setting with edge sensitive N event)
     pub clr_cont: bool,
     /// clr_once:
-    /// - true: Latch or latch and clear X_ENC on the next N event following the write access
+    ///  - true: Latch or latch and clear X_ENC on the next N event following the write access
     pub clr_once: bool,
     /// neg_edge, pos_edge:
-    /// - false false: N channel event is active during an active N event level
-    /// - false true: N channel is valid upon active going N event
-    /// - true false: N channel is valid upon inactive going N event
-    /// - true true: N channel is valid upon active going and inactive going N event
+    ///  - false false: N channel event is active during an active N event level
+    ///  - false true: N channel is valid upon active going N event
+    ///  - true false: N channel is valid upon inactive going N event
+    ///  - true true: N channel is valid upon active going and inactive going N event
     pub pos_edge: bool,
     /// neg_edge, pos_edge:
-    /// - false false: N channel event is active during an active N event level
-    /// - false true: N channel is valid upon active going N event
-    /// - true false: N channel is valid upon inactive going N event
-    /// - true true: N channel is valid upon active going and inactive going N event
+    ///  - false false: N channel event is active during an active N event level
+    ///  - false true: N channel is valid upon active going N event
+    ///  - true false: N channel is valid upon inactive going N event
+    ///  - true true: N channel is valid upon active going and inactive going N event
     pub neg_edge: bool,
     /// clr_enc_x:
-    /// - false: Upon N event, X_ENC becomes latched to ENC_LATCH only
-    /// - true: Latch and additionally clear encoder counter X_ENC at N-event
+    ///  - false: Upon N event, X_ENC becomes latched to ENC_LATCH only
+    ///  - true: Latch and additionally clear encoder counter X_ENC at N-event
     pub clr_enc_x: bool,
     /// latch_x_act:
-    /// - true: Also latch XACTUAL position together with X_ENC. Allows latching the ramp generator position upon an N channel event as selected by pos_edge and neg_edge.
+    ///  - true: Also latch XACTUAL position together with X_ENC. Allows latching the ramp generator position upon an N channel event as selected by pos_edge and neg_edge.
     pub latch_x_act: bool,
     /// enc_sel_decimal:
-    /// - false: Encoder prescaler divisor binary mode: Counts in ENC_CONST(fractional part) /65536
-    /// - true: Encoder prescaler divisor decimal mode: Counts in ENC_CONST(fractional part) /10000
+    ///  - false: Encoder prescaler divisor binary mode: Counts in ENC_CONST(fractional part) /65536
+    ///  - true: Encoder prescaler divisor decimal mode: Counts in ENC_CONST(fractional part) /10000
     pub enc_sel_decimal: bool,
     /// latch_now:
-    /// - true: Latch X_ENC (and XACTUAL if selected by bit latch_x_act) directly upon write access to ENCMODE. This allows checking the encoder deviation by comparing the X_LATCH and ENC_LATCH.
-    /// - false: No action
+    ///  - true: Latch X_ENC (and XACTUAL if selected by bit latch_x_act) directly upon write access to ENCMODE. This allows checking the encoder deviation by comparing the X_LATCH and ENC_LATCH.
+    ///  - false: No action
     pub latch_now: bool,
 }
 
@@ -355,7 +355,8 @@ mod enc_const {
 #[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 pub struct EncStatus<const N: u8> {
     /// n_event:
-    /// - true: Encoder N event detected. Status bit is cleared on read: Read (R) + clear (C)
+    ///  - true: Encoder N event detected. Status bit is cleared on read: Read (R) + clear (C)
+    ///
     /// This bit is ORed to the interrupt output signal
     pub enc_status: bool,
 }
