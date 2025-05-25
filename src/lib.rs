@@ -75,7 +75,7 @@
 //! #         AnyError
 //! #     }
 //! # }
-//! impl<E: embedded_hal::spi::ErrorType> From<InitError<E>> for AnyError {
+//! # impl<E: embedded_hal::spi::ErrorType> From<InitError<E>> for AnyError {
 //! #     fn from(_: InitError<E>) -> Self {
 //! #         AnyError
 //! #     }
@@ -106,7 +106,7 @@ pub mod spi;
 pub mod status;
 
 use embedded_hal::spi::{Operation, SpiDevice};
-use registers::{Register, IC_VERSION, READ_FLAG, WRITE_FLAG};
+use registers::{IC_VERSION, READ_FLAG, Register, WRITE_FLAG};
 #[cfg(feature = "serde")]
 use serde::{Deserialize, Serialize};
 use spi::{SpiOk, SpiResult};
@@ -201,7 +201,7 @@ mod test {
         general_configuration_register::GConf,
         motor_driver_register::ChopConf,
         ramp_generator_driver_feature_control_register::{IHoldIRun, VCoolThrs, VHigh},
-        ramp_generator_register::{AMax, DMax, RampMode, VMax, VStop, XActual, A1, D1, V1},
+        ramp_generator_register::{A1, AMax, D1, DMax, RampMode, V1, VMax, VStop, XActual},
         voltage_pwm_mode_stealth_chop::PwmConf,
     };
 
